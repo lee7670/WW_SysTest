@@ -110,7 +110,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   UART_ReadStart(&huart1);
   uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
-  HAL_UART_Transmit(&huart1, buffer, len, 1000);
+  HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
   HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);

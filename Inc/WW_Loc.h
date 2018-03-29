@@ -22,12 +22,12 @@
 #define KP 0.9
 #define KI 3.3
 #define KD 0.07
-#define PID_PERIOD 100
+#define PID_PERIOD 25
+#define TOLERANCE 10
 struct motor{
 	float setRPM;
 	bool dir;
 	float distance_traveled;
-	float prevpos;
 	float setDis;
 	uint16_t prevcount;
 	TIM_HandleTypeDef* encoder;

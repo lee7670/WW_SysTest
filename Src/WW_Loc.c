@@ -22,11 +22,9 @@ void initMot(TIM_HandleTypeDef* TIM_RightEnc, TIM_HandleTypeDef* TIM_LeftEnc,
 	right.setRPM = 0.0;
 	right.setDis = 0.0;
 	right.distance_traveled = 0.0f;
-	right.prevpos = 0.0;
 	left.setRPM = 0.0;
 	left.setDis = 0.0;
 	left.distance_traveled = 0.0f;
-	left.prevpos = 0.0;
 	PIDInit(&right.PID, KP, KI, KD, .1, ((float)PID_PERIOD)/1000.0, 255, AUTOMATIC, DIRECT);
 	PIDInit(&left.PID, KP, KI, KD, .1, ((float)PID_PERIOD)/1000.0, 255, AUTOMATIC, DIRECT);
 
@@ -100,9 +98,9 @@ void Run_PID(UART_HandleTypeDef* huart){
 	Set_MotorDir();
 	uint16_t newposition1 = Get_EncoderPos(&right);
 	uint16_t newposition2 = Get_EncoderPos(&left);
-	char buffer[25];
-	uint8_t len = sprintf(buffer, "newposition:%i\r\n", newposition1);
-	HAL_UART_Transmit(huart, buffer, len, 1000);
+//	char buffer[25];
+//	uint8_t len = sprintf(buffer, "deltat:%i\r\n", deltat);
+//	HAL_UART_Transmit(huart, buffer, len, 1000);
 	prevtim = tim;
 	float vel1 = ((float)newposition1) * 10; //encoder pulses per second
 	float rpm1 = ((vel1 * 60)/3000); //Measured motor RPM
@@ -118,10 +116,12 @@ void Run_PID(UART_HandleTypeDef* huart){
 	{
 		rpm2 = -1*rpm2;
 	}
+//	PIDSampleTimeSet(&left.PID, ((float)(deltat))/1000.0);
+//	PIDSampleTimeSet(&right.PID, ((float)(deltat))/1000.0);
 	Set_PIDOut(rpm1, rpm2, huart);
 	right.distance_traveled = right.distance_traveled + (realspeed1*deltat*1e-3); //integrate linear velocity to obtain distance
 	left.distance_traveled = left.distance_traveled + (realspeed2*deltat*1e-3); //integrate linear velocity to obtain distance
-	if ((abs(right.distance_traveled-right.setDis) <= 5)||(abs(left.distance_traveled-left.setDis) <= 5) ){
+	if ((abs(right.distance_traveled-right.setDis) <= TOLERANCE)||(abs(left.distance_traveled-left.setDis) <= TOLERANCE) ){
 		__HAL_TIM_SetCompare(right.pwm, TIM_CHANNEL_1, 0);
 		__HAL_TIM_SetCompare(left.pwm, TIM_CHANNEL_1, 0);
 		right.setRPM = 0.0; //Brake
@@ -131,27 +131,31 @@ void Run_PID(UART_HandleTypeDef* huart){
 		right.setDis = 0.0;
 		left.setDis = 0.0;
 		Set_MotorDir();
+		Get_EncoderPos(&right);
+		Get_EncoderPos(&left);
 	}
-	right.prevpos = newposition1;
-	left.prevpos = newposition2;
 	return;
 }
 uint16_t Get_EncoderPos(struct motor* Mot){
 	uint16_t newposition;
+	//establish one master value of count
+	uint16_t currentcount = __HAL_TIM_GET_COUNTER(Mot->encoder);
 	if(__HAL_TIM_IS_TIM_COUNTING_DOWN(Mot->encoder)){
-		if(Mot->prevcount < __HAL_TIM_GET_COUNTER(Mot->encoder)){
-			newposition = 65535 - __HAL_TIM_GET_COUNTER(Mot->encoder) + Mot->prevcount;
+		if(Mot->prevcount < currentcount){
+			//underflow condition
+			newposition = 65535 - currentcount + Mot->prevcount;
 		}else{
-			newposition = abs(__HAL_TIM_GET_COUNTER(Mot->encoder) - Mot->prevcount);
+			newposition = abs(Mot->prevcount-currentcount);
 		}
 	}else{
-		if(Mot->prevcount > __HAL_TIM_GET_COUNTER(Mot->encoder)){
-			newposition = __HAL_TIM_GET_COUNTER(Mot->encoder) + 65535 - Mot->prevcount;
+		if(Mot->prevcount > currentcount){
+			//overflow condition
+			newposition = currentcount + 65535 - Mot->prevcount;
 		}else{
-			newposition = abs(__HAL_TIM_GET_COUNTER(Mot->encoder) - Mot->prevcount);
+			newposition = abs(currentcount - Mot->prevcount);
 		}
 	}
-	Mot->prevcount = __HAL_TIM_GET_COUNTER(Mot->encoder);
+	Mot->prevcount = currentcount;
 	return newposition;
 }
 uint16_t Get_LeftEncoderPos(){
