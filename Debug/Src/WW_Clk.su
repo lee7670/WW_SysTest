@@ -1,2 +1,2 @@
-WW_Clk.c:10:6:HAL_TIM_PeriodElapsedCallback	0	static
-WW_Clk.c:17:10:Get_Time	0	static
+WW_Clk.c:11:6:HAL_TIM_PeriodElapsedCallback	0	static
+WW_Clk.c:19:10:millis	0	static

@@ -15,6 +15,7 @@
 #include "stm32l1xx_hal_uart.h"
 #include "WW_Loc.h"
 #include "WW_Clk.h"
+#include "WW_Defs.h"
 void Parse_CMD(TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void UART_ReadStart(UART_HandleTypeDef *huart);

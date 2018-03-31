@@ -60,6 +60,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void setup();
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -78,7 +79,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	char buffer[25];
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -108,24 +108,16 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
-  UART_ReadStart(&huart1);
-  uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
-  HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
-  HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
-  initMot(&htim3, &htim2, &htim11, &htim10);
-  HAL_TIM_Base_Start_IT(&htim6);
-  HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);
-  HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+  setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  UART_ReadStart(&huart1);
+	  //Parse Recieved Serial Commands
 	  Parse_CMD(&htim9, &huart1);
+	  //Run PID Control to adjust motor PWM to hit targets
 	  Run_PID(&huart1);
   /* USER CODE END WHILE */
 
@@ -191,7 +183,26 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void setup(){
+	//start code initiation
+	char buffer[25];
+	uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
+	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
+	//start PWM clocks
+	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
+	//init motor data structures
+	initMot(&htim3, &htim2, &htim11, &htim10);
+	//start millis() timer clock interrupt
+	HAL_TIM_Base_Start_IT(&htim6);
+	//start encoder tracking
+	HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);
+	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+	//start UART receive interrupt
+	UART_ReadStart(&huart1);
+	return;
+}
 /* USER CODE END 4 */
 
 /**

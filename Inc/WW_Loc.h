@@ -14,9 +14,7 @@
 #include <stdlib.h>
 #include "pid_controller.h"
 #include "WW_Clk.h"
-#ifndef M_PI
-#    define M_PI 3.14159265358979323846
-#endif
+#include "WW_Defs.h"
 #define WHEELRAD 90.0
 #define CENTERDIS 350
 #define KP 0.9
@@ -47,5 +45,5 @@ void Set_PIDOut(float rpm1, float rpm2, UART_HandleTypeDef* huart);
 void Run_MotorPWM(int16_t pwm);
 uint16_t Get_RightEncoderPos();
 uint16_t Get_LeftEncoderPos();
-
+void Stop_Motors();
 #endif /* WW_LOC_H_ */
