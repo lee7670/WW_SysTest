@@ -48,6 +48,7 @@
 #include "WW_CMD.h"
 #include "WW_Loc.h"
 #include "WW_Clk.h"
+#include "WW_Sen.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -199,6 +200,10 @@ void setup(){
 	//start encoder tracking
 	HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);
 	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+	//Init Ultrasonic Data Structures
+	initUltrasonics(&htim5);
+	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_3);
+	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_4);
 	//start UART receive interrupt
 	UART_ReadStart(&huart1);
 	return;

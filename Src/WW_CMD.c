@@ -72,6 +72,21 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart){
 			tkpnt = strtok(NULL, " ");
 			float linspd = atof(tkpnt);
 			setLin(lindis, linspd);
+		}else if(strncmp(tkpnt, "a",1)==0){
+			/*
+			 * Start Arc Move
+			 * Sets targets for a linear move
+			 * Format: "a @radius @angularvelocity @angle"
+			 * Ex. "a 500 360 90"
+			 *
+			 */
+			tkpnt = strtok(NULL, " ");
+			float rotR = atof(tkpnt);
+			tkpnt = strtok(NULL, " ");
+			float rotomega = atof(tkpnt);
+			tkpnt = strtok(NULL, " ");
+			float rotphi = atof(tkpnt);
+			setArc(rotR, rotomega, rotphi);
 		}else if(strncmp(tkpnt, "t",1)==0){
 			/*
 			 * Prints system time in milliseconds to UART
@@ -79,6 +94,7 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart){
 			char buffer[100];
 			uint8_t len=sprintf(buffer,"%i\r\n", millis()); //sprintf will return the length of 'buffer'
 			HAL_UART_Transmit(huart, buffer, len, 1000);
+		#ifdef DEBUG
 		}else if(strncmp(tkpnt, "d",1)==0){
 			/*
 			 * Drive motors open loop
@@ -88,7 +104,7 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart){
 			tkpnt = strtok(NULL, " ");
 			int16_t pwm = atoi(tkpnt);
 			Run_MotorPWM(pwm);
-		#ifdef DEBUG
+
 		}else if(strncmp(tkpnt, "e",1)==0){
 			/*
 			 * Prints encoder timer count and count since last call of Get_Left/RightEncoderPos()

@@ -11,20 +11,27 @@ struct motor right;
 //initiate right and left motor data structures. Also initializes PID controllers.
 void initMot(TIM_HandleTypeDef* TIM_RightEnc, TIM_HandleTypeDef* TIM_LeftEnc,
 		TIM_HandleTypeDef* TIM_RightMot, TIM_HandleTypeDef* TIM_LeftMot){
+
 	right.prevcount = __HAL_TIM_GET_COUNTER(TIM_RightEnc);
 	left.prevcount = __HAL_TIM_GET_COUNTER(TIM_LeftEnc);
+
 	right.encoder = TIM_RightEnc;
 	left.encoder = TIM_LeftEnc;
+
 	right.pwm = TIM_RightMot;
 	left.pwm = TIM_LeftMot;
+
 	right.dir = false;
 	left.dir = false;
+
 	right.setRPM = 0.0;
 	right.setDis = 0.0;
 	right.distance_traveled = 0.0f;
+
 	left.setRPM = 0.0;
 	left.setDis = 0.0;
 	left.distance_traveled = 0.0f;
+
 	PIDInit(&right.PID, KP, KI, KD, .1, ((float)PID_PERIOD)/1000.0, 255, AUTOMATIC, DIRECT);
 	PIDInit(&left.PID, KP, KI, KD, .1, ((float)PID_PERIOD)/1000.0, 255, AUTOMATIC, DIRECT);
 
@@ -36,31 +43,31 @@ void setArc(float R/*mm*/, float w/*degrees/s*/, float phi/*degrees*/){
 	left.setRPM = (w*(R-CENTERDIS))*scalingfactor*(1/WHEELRAD);
 	//set appropriate values for reverse operation
 	if (right.setRPM < 0){
-	right.setRPM = -1*right.setRPM;
-	right.dir = true;
+		right.setRPM = -1*right.setRPM;
+		right.dir = true;
 	}
 	else
 	{
-	right.dir = false;
+		right.dir = false;
 	}
 
 	if (left.setRPM < 0){
-	left.setRPM = -1*left.setRPM;
-	left.dir = true;
+		left.setRPM = -1*left.setRPM;
+		left.dir = true;
 	}
 	else
 	{
-	left.dir = false;
+		left.dir = false;
 	}
 	//get arc length for distance target
 	right.setDis = abs((R+CENTERDIS)*phi*M_PI/180);
 	left.setDis = abs((R-CENTERDIS)*phi*M_PI/180);
 	//adjust again for negative phi
 	if (phi < 0){
-	  left.setRPM = -1*left.setRPM;
-	  left.dir = !left.dir;
-	  right.setRPM = -1*right.setRPM;
-	  right.dir = !right.dir;
+		left.setRPM = -1*left.setRPM;
+		left.dir = !left.dir;
+		right.setRPM = -1*right.setRPM;
+		right.dir = !right.dir;
 	}
 	//Re-initialize targeting to a rotation/distance
 	right.distance_traveled = 0.0;
@@ -73,15 +80,15 @@ void setLin(float dis/*mm*/, float spd/*mm/s*/){
 	left.setRPM = right.setRPM;
 	//reverse if rpm negative
 	if (right.setRPM < 0){
-	right.setRPM = -1.0*right.setRPM;
-	left.setRPM = -1.0*left.setRPM;
-	right.dir = true;
-	left.dir = true;
+		right.setRPM = -1.0*right.setRPM;
+		left.setRPM = -1.0*left.setRPM;
+		right.dir = true;
+		left.dir = true;
 	}
 	else
 	{
-	right.dir = false;
-	left.dir = false;
+		right.dir = false;
+		left.dir = false;
 	}
 	//set distance
 	right.setDis = dis;
