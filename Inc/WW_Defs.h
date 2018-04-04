@@ -22,7 +22,7 @@ struct cmdqueue{
 	uint8_t back;
 	uint8_t size;
 	uint8_t capacity;
-	char* cmds[QUEUESIZE];
+	char cmds[QUEUESIZE][100];
 };
 void initCOM();
 int isFull();

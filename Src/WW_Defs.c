@@ -6,11 +6,18 @@
  */
 #include "WW_Defs.h"
 struct cmdqueue COM;
+//char** queue;
+char buildqueue[QUEUESIZE][100];
 void initCOM(){
 	COM.back = QUEUESIZE-1;
 	COM.front = 0;
 	COM.size = 0;
 	COM.capacity = (uint8_t)QUEUESIZE;
+	for(int i = 0; i<QUEUESIZE; i++){
+		for(int j=0; j<100; j++){
+			COM.cmds[i][j] = 0;
+		}
+	}
 	return;
 }
 int isFull(){
@@ -27,7 +34,7 @@ char* deq(){
 		return "";
 	}
 	char*item = COM.cmds[COM.front];
-	COM.cmds[COM.front] = "\0";
+	strcpy(COM.cmds[COM.front], "\0");
 	COM.front = (COM.front + 1) % COM.capacity;
 	COM.size -=1;
 	return item;
@@ -41,7 +48,7 @@ int enq(char* str){
 	strcpy(temp, str);
 
 	COM.back = (COM.back + 1) % COM.capacity;
-	COM.cmds[COM.back] = temp;
+	strcpy(COM.cmds[COM.back], temp);
 	COM.size += 1;
 	return true;
 }

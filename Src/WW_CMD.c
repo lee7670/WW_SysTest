@@ -26,7 +26,7 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM,UART_HandleTypeDef* huart){
 		HAL_UART_Transmit(huart, buffer, len, 1000);
 		//add c string null terminator
 		cmd[Transfer_cplt]='\0';
-		if((cmd[0] == 's')||(cmd[0]=='t')){
+		if((cmd[0] == 's')||(cmd[0]=='t')||(cmd[0]=='f')){
 			EXE_CMD(cmd, Fan_TIM, huart);
 		}
 		else{
