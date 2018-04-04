@@ -149,6 +149,7 @@ void Run_PID(UART_HandleTypeDef* huart){
 		right.setDis = 0.0;
 		left.setDis = 0.0;
 		Set_MotorDir();
+		if(!isEmpty()) EXE_CMD(deq(), &htim9, &huart1);
 		Get_EncoderPos(&right);
 		Get_EncoderPos(&left);
 	}
@@ -218,8 +219,8 @@ void Set_PIDOut(float rpm1, float rpm2, UART_HandleTypeDef* huart){
 	PIDCompute(&left.PID);
 	uint16_t speed1 = (uint16_t)PIDOutputGet(&right.PID);
 	uint16_t speed2 = (uint16_t)PIDOutputGet(&left.PID);
-	speed1 = map(speed1, 0, 255, 0, 2000);
-	speed2 = map(speed2, 0, 255, 0, 2000);
+	speed1 = map(speed1, 0, 255, 0, 1125);
+	speed2 = map(speed2, 0, 255, 0, 1125);
 	__HAL_TIM_SetCompare(right.pwm, TIM_CHANNEL_1, speed1);
 	__HAL_TIM_SetCompare(left.pwm, TIM_CHANNEL_1, speed2);
 	return;

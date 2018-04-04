@@ -15,6 +15,9 @@
 #include "pid_controller.h"
 #include "WW_Clk.h"
 #include "WW_Defs.h"
+#include "WW_CMD.h"
+#include "tim.h"
+#include "usart.h"
 #define WHEELRAD 90.0
 #define CENTERDIS 350
 #define KP 0.9

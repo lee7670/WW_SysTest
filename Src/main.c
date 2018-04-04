@@ -49,6 +49,7 @@
 #include "WW_Loc.h"
 #include "WW_Clk.h"
 #include "WW_Sen.h"
+#include "WW_Defs.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -195,6 +196,8 @@ void setup(){
 	HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
 	//init motor data structures
 	initMot(&htim3, &htim2, &htim11, &htim10);
+	//init command queue data structure
+	initCOM();
 	//start millis() timer clock interrupt
 	HAL_TIM_Base_Start_IT(&htim6);
 	//start encoder tracking
