@@ -8,6 +8,7 @@
 struct cmdqueue COM;
 //char** queue;
 char buildqueue[QUEUESIZE][100];
+char deqtemp[100];
 void initCOM(){
 	COM.back = QUEUESIZE-1;
 	COM.front = 0;
@@ -33,8 +34,10 @@ char* deq(){
 	if(isEmpty()){
 		return "";
 	}
-	char*item = COM.cmds[COM.front];
-	strcpy(COM.cmds[COM.front], "\0");
+
+	strcpy(deqtemp, COM.cmds[COM.front]);
+	char*item = deqtemp;
+	memset(COM.cmds[COM.front],0, sizeof COM.cmds[COM.front]);
 	COM.front = (COM.front + 1) % COM.capacity;
 	COM.size -=1;
 	return item;

@@ -125,14 +125,14 @@ void Run_PID(UART_HandleTypeDef* huart){
 	float realspeed1 = (rpm1 * 2.0 * M_PI * WHEELRAD)/60; //Linear speed in mm/s
 	float realspeed2 = (rpm2 * 2.0 * M_PI * WHEELRAD)/60; //Linear speed in mm/s
 	//if negative, reverse
-	if (right.dir)
-	{
-		rpm1 = -1*rpm1;
-	}
-	if (left.dir)
-	{
-		rpm2 = -1*rpm2;
-	}
+//	if (right.dir)
+//	{
+//		rpm1 = -1*rpm1;
+//	}
+//	if (left.dir)
+//	{
+//		rpm2 = -1*rpm2;
+//	}
 	//run PID calculations and set outputs
 	Set_PIDOut(rpm1, rpm2, huart);
 	//check for stop condition
@@ -223,11 +223,11 @@ void Set_PIDOut(float rpm1, float rpm2, UART_HandleTypeDef* huart){
 	PIDCompute(&left.PID);
 	uint16_t speed1 = (uint16_t)PIDOutputGet(&right.PID);
 	uint16_t speed2 = (uint16_t)PIDOutputGet(&left.PID);
-	speed1 = map(speed1, 0, 255, 0, 1125);
-	speed2 = map(speed2, 0, 255, 0, 1125);
-	char buffer[25];
-	uint8_t len = sprintf(buffer,"pwm:%i\r\n", speed1); //sprintf will return the length of 'buffer'
-	HAL_UART_Transmit(huart, buffer, len, 1000);
+	speed1 = map(speed1, 0, 255, 0, 2000);
+	speed2 = map(speed2, 0, 255, 0, 2000);
+//	char buffer[25];
+//	uint8_t len = sprintf(buffer,"pwm:%i\r\n", speed1); //sprintf will return the length of 'buffer'
+//	HAL_UART_Transmit(huart, buffer, len, 1000);
 	__HAL_TIM_SetCompare(right.pwm, TIM_CHANNEL_1, speed1);
 	__HAL_TIM_SetCompare(left.pwm, TIM_CHANNEL_1, speed2);
 	return;

@@ -26,7 +26,7 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM,UART_HandleTypeDef* huart){
 		HAL_UART_Transmit(huart, buffer, len, 1000);
 		//add c string null terminator
 		cmd[Transfer_cplt]='\0';
-		if((cmd[0] == 's')||(cmd[0]=='t')||(cmd[0]=='f')){
+		if(true||(cmd[0] == 's')||(cmd[0]=='t')||(cmd[0]=='f')){
 			EXE_CMD(cmd, Fan_TIM, huart);
 		}
 		else{
@@ -60,6 +60,13 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		 * Stop fan command, immediately stops fan pwm
 		 */
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, 0);
+	}else if (strncmp(tkpnt, "r",1)==0){
+		tkpnt = strtok(NULL, " ");
+		float rotomega = atof(tkpnt);
+		tkpnt = strtok(NULL, " ");
+		float rotphi = atof(tkpnt);
+		float rotR = 0.0;
+		setArc(rotR, rotomega, rotphi);
 	}else if(strncmp(tkpnt, "f",1)==0){
 		/*
 		 * Fan command
