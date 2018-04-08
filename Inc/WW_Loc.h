@@ -13,7 +13,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "pid_controller.h"
-#include "WW_Clk.h"
 #include "WW_Defs.h"
 #include "WW_CMD.h"
 #include "tim.h"
