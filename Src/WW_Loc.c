@@ -104,7 +104,7 @@ void Run_PID(UART_HandleTypeDef* huart){
 	//previous timestam the full task was run
 	static uint64_t prevtim = 0;
 	//get current time
-	volatile uint64_t tim = millis();
+	volatile uint64_t tim = HAL_GetTick();
 	volatile uint32_t deltat = (uint32_t)(tim - prevtim);
 	//if PID_PERIOD time has passed, run routine
 	if(deltat < PID_PERIOD){
@@ -119,9 +119,9 @@ void Run_PID(UART_HandleTypeDef* huart){
 	prevtim = tim;
 	//calculate current RPM for PID velocity control and Real linear speed for stop condition
 	float vel1 = ((float)newposition1) * 10; //encoder pulses per second
-	float rpm1 = ((vel1 * 60)/3000); //Measured motor RPM
+	float rpm1 = ((vel1 * 60)/1500); //Measured motor RPM
 	float vel2 = ((float)newposition2) * 10; //encoder pulses per second
-	float rpm2 = ((vel2 * 60)/3000);
+	float rpm2 = ((vel2 * 60)/1500);
 	float realspeed1 = (rpm1 * 2.0 * M_PI * WHEELRAD)/60; //Linear speed in mm/s
 	float realspeed2 = (rpm2 * 2.0 * M_PI * WHEELRAD)/60; //Linear speed in mm/s
 	//if negative, reverse
@@ -221,8 +221,12 @@ void Set_PIDOut(float rpm1, float rpm2, UART_HandleTypeDef* huart){
 	PIDSetpointSet(&left.PID,left.setRPM);
 	PIDInputSet(&left.PID,rpm2);
 	PIDCompute(&left.PID);
-	uint16_t speed1 = (uint16_t)PIDOutputGet(&right.PID);
+	//uint16_t speed1 = (uint16_t)PIDOutputGet(&right.PID);
+	uint16_t speed1 = 0;
 	uint16_t speed2 = (uint16_t)PIDOutputGet(&left.PID);
+	if (abs(left.setRPM) > 0) {
+		speed1 = (uint16_t)(1.2*(abs(right.setRPM)/abs(left.setRPM))*speed2);
+	}
 	speed1 = map(speed1, 0, 255, 0, 2000);
 	speed2 = map(speed2, 0, 255, 0, 2000);
 //	char buffer[25];
