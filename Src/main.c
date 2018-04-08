@@ -47,7 +47,6 @@
 #include <stdlib.h>
 #include "WW_CMD.h"
 #include "WW_Loc.h"
-#include "WW_Clk.h"
 #include "WW_Sen.h"
 #include "WW_Defs.h"
 /* USER CODE END Includes */

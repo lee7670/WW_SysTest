@@ -118,7 +118,7 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		 * Prints system time in milliseconds to UART
 		 */
 		char buffer[100];
-		uint8_t len=sprintf(buffer,"%i\r\n", millis()); //sprintf will return the length of 'buffer'
+		uint8_t len=sprintf(buffer,"%i\r\n", HAL_GetTick()); //sprintf will return the length of 'buffer'
 		HAL_UART_Transmit(huart, buffer, len, 1000);
 	#ifdef DEBUG
 	}else if(strncmp(tkpnt, "d",1)==0){
