@@ -89,9 +89,8 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		 * 0 to 180
 		 */
 		tkpnt = strtok(NULL, " ");
-		uint8_t ang = atoi(tkpnt);
-		uint16_t pwm = map(ang, 0, 180, 0, 255);
-		pwm = pwm + 255;
+		int16_t pwm = atoi(tkpnt);
+		pwm = map(pwm, 0, 180, 125, 500);
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_2, pwm);
 	}else if(strncmp(tkpnt, "p",1)==0){
 		startPP();

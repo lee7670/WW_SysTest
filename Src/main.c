@@ -197,6 +197,7 @@ void setup(){
 	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
 	//start PWM clocks
 	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
 	//init motor data structures
