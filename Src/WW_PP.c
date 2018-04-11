@@ -6,15 +6,16 @@
  */
 #include <WW_PP.h>
 bool BarrierCrossed = false;
-struct ultrasonic x;
-struct ultrasonic y;
 int len, lenr;
 char *dis, *rot;
 float lin_dis;
 float theta = ROTATIONANGLE;
 bool running = false;
+struct ultrasonic x;
+struct ultrasonic y;
 void startPP(){
 	running = !running;
+	initUltrasonics(&htim5);
 	return;
 }
 
@@ -27,6 +28,7 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 			return;
 		}
 	//double d_x = Get_Ultrasonic_Reading(&x);
+	Ping_Ultrasonic(&y, y.GPIO_PingPin);
 	double d_y = Get_Ultrasonic_Reading(&y);
 	if (/*(d_x >= End_of_Window_Threshold) && (!BarrierCrossed)*/ false){
 		enq("b 180");
