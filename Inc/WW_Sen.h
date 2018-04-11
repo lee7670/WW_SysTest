@@ -35,7 +35,4 @@ void getEuler(float* result);
 void write8(uint8_t regid, uint8_t val);
 void readLen(uint8_t regid, uint8_t* buffer, uint8_t len);
 uint8_t read8(uint8_t regid);
-double Get_USY();
-double Get_USX();
-void sampleSensors();
 #endif /* WW_SEN_H_ */

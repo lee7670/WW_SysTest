@@ -27,8 +27,7 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 			return;
 		}
 	//double d_x = Get_Ultrasonic_Reading(&x);
-	sampleSensors();
-	double d_y = Get_USY();
+	double d_y = Get_Ultrasonic_Reading(&y);
 	if (/*(d_x >= End_of_Window_Threshold) && (!BarrierCrossed)*/ false){
 		enq("b 180");
 		enq("l 991 500");

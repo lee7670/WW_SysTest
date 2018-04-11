@@ -64,12 +64,6 @@ double Get_Ultrasonic_Reading(struct ultrasonic* ult){
 	d = (0.997889*d)-0.26247;
 	return d;
 }
-double Get_USX(){
-	return Get_Ultrasonic_Reading(&x);
-}
-double Get_USY(){
-	return Get_Ultrasonic_Reading(&y);
-}
 void initUltrasonics(TIM_HandleTypeDef* htim){
 	x.GPIO_PingBank = GPIOA;
 	x.GPIO_PingPin = 9;
@@ -122,11 +116,6 @@ void getEuler(float* result){
 	result[0] = (float)(buffer[0])/16.0;
 	result[1] = (float)(buffer[1])/16.0;
 	result[2] = (float)(buffer[2])/16.0;
-	return;
-}
-void sampleSensors(){
-	Ping_Ultrasonic(y.GPIO_PingBank,y.GPIO_PingPin);
-	Ping_Ultrasonic(x.GPIO_PingBank,x.GPIO_PingPin);
 	return;
 }
 
