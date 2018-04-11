@@ -38,6 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32l1xx_hal.h"
+#include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -61,10 +62,10 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void setup();
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+void setup();
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 /* USER CODE END PFP */
 
@@ -108,6 +109,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM6_Init();
   MX_TIM5_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   setup();
   /* USER CODE END 2 */
@@ -197,6 +199,8 @@ void setup(){
 	initMot(&htim3, &htim2, &htim11, &htim10);
 	//init command queue data structure
 	initCOM();
+	//init IMU data Structure
+	initIMU(&hi2c2);
 	//start millis() timer clock interrupt
 	HAL_TIM_Base_Start_IT(&htim6);
 	//start encoder tracking

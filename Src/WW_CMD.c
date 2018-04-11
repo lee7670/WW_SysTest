@@ -83,6 +83,16 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		int pwm = atoi(tkpnt);
 		pwm = pwm + 255;
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, pwm);
+	}else if(strncmp(tkpnt, "b",1)==0){
+		/*
+		 * Servo command
+		 * 0 to 180
+		 */
+		tkpnt = strtok(NULL, " ");
+		uint8_t ang = atoi(tkpnt);
+		uint16_t pwm = map(ang, 0, 180, 0, 255);
+		pwm = pwm + 255;
+		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_2, pwm);
 	}else if(strncmp(tkpnt, "l",1)==0){
 		/*
 		 * Start Linear Move
@@ -131,6 +141,19 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		int16_t pwm = atoi(tkpnt);
 		Run_MotorPWM(pwm);
 
+	}else if(strncmp(tkpnt, "i",1)==0){
+		/*ping i2c, check id*/
+		uint8_t id = checkIMUID();
+		char buffer[100];
+		uint8_t len = sprintf(buffer,"ID :%x\r\n", id); //sprintf will return the length of 'buffer'
+		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
+		write8(OPR_MODE_ADD, OPERATION_MODE_IMUPLUS);
+		float euler[3];
+		getEuler(euler);
+		len = sprintf(buffer,"EulerX :%i\r\n", (int)(euler[0])); //sprintf will return the length of 'buffer'
+		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
+		len = sprintf(buffer,"Temp :%i\r\n", (int8_t)(read8(BNO055_TEMP_ADDR))); //sprintf will return the length of 'buffer'
+		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
 	}else if(strncmp(tkpnt, "e",1)==0){
 		/*
 		 * Prints encoder timer count and count since last call of Get_Left/RightEncoderPos()

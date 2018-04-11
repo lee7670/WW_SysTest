@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
+  * File Name          : I2C.c
+  * Description        : This file provides code for the configuration
+  *                      of the I2C instances.
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -37,79 +37,99 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H__
-#define __MAIN_H__
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l1xx_hal.h"
+#include "i2c.h"
 
-/* USER CODE BEGIN Includes */
+#include "gpio.h"
 
-/* USER CODE END Includes */
+/* USER CODE BEGIN 0 */
 
-/* Private define ------------------------------------------------------------*/
+/* USER CODE END 0 */
 
-#define PC14_OSC32_IN_Pin GPIO_PIN_14
-#define PC14_OSC32_IN_GPIO_Port GPIOC
-#define PC15_OSC32_OUT_Pin GPIO_PIN_15
-#define PC15_OSC32_OUT_GPIO_Port GPIOC
-#define IDD_Measurement_Pin GPIO_PIN_4
-#define IDD_Measurement_GPIO_Port GPIOA
-#define GRP2_Sampling_Pin GPIO_PIN_6
-#define GRP2_Sampling_GPIO_Port GPIOA
-#define GRP2_Ground_Pin GPIO_PIN_7
-#define GRP2_Ground_GPIO_Port GPIOA
-#define GRP9_Sampling_Pin GPIO_PIN_4
-#define GRP9_Sampling_GPIO_Port GPIOC
-#define GRP9_Ground_Pin GPIO_PIN_5
-#define GRP9_Ground_GPIO_Port GPIOC
-#define GRP3_Sampling_Pin GPIO_PIN_0
-#define GRP3_Sampling_GPIO_Port GPIOB
-#define GRP3_Ground_Pin GPIO_PIN_1
-#define GRP3_Ground_GPIO_Port GPIOB
-#define SEG8_Pin GPIO_PIN_12
-#define SEG8_GPIO_Port GPIOB
-#define SEG11_Pin GPIO_PIN_15
-#define SEG11_GPIO_Port GPIOB
-#define SEG20_Pin GPIO_PIN_8
-#define SEG20_GPIO_Port GPIOC
-#define SEG21_Pin GPIO_PIN_9
-#define SEG21_GPIO_Port GPIOC
-#define COM2_Pin GPIO_PIN_10
-#define COM2_GPIO_Port GPIOA
-#define SWDIO_Pin GPIO_PIN_13
-#define SWDIO_GPIO_Port GPIOA
-#define SWCLK_Pin GPIO_PIN_14
-#define SWCLK_GPIO_Port GPIOA
-#define SEG22_Pin GPIO_PIN_10
-#define SEG22_GPIO_Port GPIOC
-#define SEG23_Pin GPIO_PIN_11
-#define SEG23_GPIO_Port GPIOC
-#define SEG5_Pin GPIO_PIN_5
-#define SEG5_GPIO_Port GPIOB
+I2C_HandleTypeDef hi2c2;
 
-/* ########################## Assert Selection ############################## */
-/**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
-  */
-/* #define USE_FULL_ASSERT    1U */
+/* I2C2 init function */
+void MX_I2C2_Init(void)
+{
 
-/* USER CODE BEGIN Private defines */
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 100000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 
-/* USER CODE END Private defines */
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-void _Error_Handler(char *, int);
-
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-#ifdef __cplusplus
 }
-#endif
 
-#endif /* __MAIN_H__ */
+void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+  if(i2cHandle->Instance==I2C2)
+  {
+  /* USER CODE BEGIN I2C2_MspInit 0 */
+
+  /* USER CODE END I2C2_MspInit 0 */
+  
+    /**I2C2 GPIO Configuration    
+    PB10     ------> I2C2_SCL
+    PB11     ------> I2C2_SDA 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* I2C2 clock enable */
+    __HAL_RCC_I2C2_CLK_ENABLE();
+  /* USER CODE BEGIN I2C2_MspInit 1 */
+
+  /* USER CODE END I2C2_MspInit 1 */
+  }
+}
+
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
+{
+
+  if(i2cHandle->Instance==I2C2)
+  {
+  /* USER CODE BEGIN I2C2_MspDeInit 0 */
+
+  /* USER CODE END I2C2_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_I2C2_CLK_DISABLE();
+  
+    /**I2C2 GPIO Configuration    
+    PB10     ------> I2C2_SCL
+    PB11     ------> I2C2_SDA 
+    */
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10|GPIO_PIN_11);
+
+  /* USER CODE BEGIN I2C2_MspDeInit 1 */
+
+  /* USER CODE END I2C2_MspDeInit 1 */
+  }
+} 
+
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

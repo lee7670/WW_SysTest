@@ -7,6 +7,7 @@
 #include <WW_Sen.h>
 struct ultrasonic x;
 struct ultrasonic y;
+struct imu accel;
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 	if (htim->Instance==TIM5)
 	{
@@ -81,3 +82,40 @@ void initUltrasonics(TIM_HandleTypeDef* htim){
 	y.IC = htim;
 	return;
 }
+void initIMU(I2C_HandleTypeDef* hi2c){
+	accel.I2C = hi2c;
+	accel.address = DEV_ADD;
+	return;
+}
+uint8_t read8(uint8_t regid){
+	uint8_t result = 0;
+	HAL_I2C_Master_Transmit(accel.I2C, DEV_ADD, &regid, 1, 100);
+	HAL_I2C_Master_Receive(accel.I2C, DEV_ADD, &result, 1, 100);
+	return result;
+}
+void readLen(uint8_t regid, uint8_t* buffer, uint8_t len){
+	HAL_I2C_Master_Transmit(accel.I2C, DEV_ADD, &regid, 1, 100);
+	HAL_I2C_Master_Receive(accel.I2C, DEV_ADD, buffer, 1, 100);
+	return;
+}
+void write8(uint8_t regid, uint8_t val){
+	HAL_I2C_Master_Transmit(accel.I2C, DEV_ADD, &regid, 1, 100);
+	HAL_I2C_Master_Transmit(accel.I2C, DEV_ADD, &val, 1, 100);
+	return;
+}
+uint8_t checkIMUID(){
+	return read8(REG_CHIP_ID);
+}
+void getEuler(float* result){
+	uint8_t recieved[6];
+	int16_t buffer[3];
+	readLen(BNO055_EULER_H_LSB_ADDR, recieved, 6);
+	buffer[0] = ((int16_t)recieved[0]) | (((int16_t)recieved[1]) << 8);
+	buffer[1] = ((int16_t)recieved[2]) | (((int16_t)recieved[3]) << 8);
+	buffer[2] = ((int16_t)recieved[4]) | (((int16_t)recieved[5]) << 8);
+	result[0] = (float)(buffer[0])/16.0;
+	result[1] = (float)(buffer[1])/16.0;
+	result[2] = (float)(buffer[2])/16.0;
+	return;
+}
+

@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
+  * File Name          : I2C.h
+  * Description        : This file provides code for the configuration
+  *                      of the I2C instances.
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -36,80 +36,46 @@
   *
   ******************************************************************************
   */
-
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#ifndef __i2c_H
+#define __i2c_H
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
+#include "main.h"
 
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
-/* Private define ------------------------------------------------------------*/
-
-#define PC14_OSC32_IN_Pin GPIO_PIN_14
-#define PC14_OSC32_IN_GPIO_Port GPIOC
-#define PC15_OSC32_OUT_Pin GPIO_PIN_15
-#define PC15_OSC32_OUT_GPIO_Port GPIOC
-#define IDD_Measurement_Pin GPIO_PIN_4
-#define IDD_Measurement_GPIO_Port GPIOA
-#define GRP2_Sampling_Pin GPIO_PIN_6
-#define GRP2_Sampling_GPIO_Port GPIOA
-#define GRP2_Ground_Pin GPIO_PIN_7
-#define GRP2_Ground_GPIO_Port GPIOA
-#define GRP9_Sampling_Pin GPIO_PIN_4
-#define GRP9_Sampling_GPIO_Port GPIOC
-#define GRP9_Ground_Pin GPIO_PIN_5
-#define GRP9_Ground_GPIO_Port GPIOC
-#define GRP3_Sampling_Pin GPIO_PIN_0
-#define GRP3_Sampling_GPIO_Port GPIOB
-#define GRP3_Ground_Pin GPIO_PIN_1
-#define GRP3_Ground_GPIO_Port GPIOB
-#define SEG8_Pin GPIO_PIN_12
-#define SEG8_GPIO_Port GPIOB
-#define SEG11_Pin GPIO_PIN_15
-#define SEG11_GPIO_Port GPIOB
-#define SEG20_Pin GPIO_PIN_8
-#define SEG20_GPIO_Port GPIOC
-#define SEG21_Pin GPIO_PIN_9
-#define SEG21_GPIO_Port GPIOC
-#define COM2_Pin GPIO_PIN_10
-#define COM2_GPIO_Port GPIOA
-#define SWDIO_Pin GPIO_PIN_13
-#define SWDIO_GPIO_Port GPIOA
-#define SWCLK_Pin GPIO_PIN_14
-#define SWCLK_GPIO_Port GPIOA
-#define SEG22_Pin GPIO_PIN_10
-#define SEG22_GPIO_Port GPIOC
-#define SEG23_Pin GPIO_PIN_11
-#define SEG23_GPIO_Port GPIOC
-#define SEG5_Pin GPIO_PIN_5
-#define SEG5_GPIO_Port GPIOB
-
-/* ########################## Assert Selection ############################## */
-/**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
-  */
-/* #define USE_FULL_ASSERT    1U */
+extern I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-void _Error_Handler(char *, int);
+extern void _Error_Handler(char *, int);
 
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+void MX_I2C2_Init(void);
+
+/* USER CODE BEGIN Prototypes */
+
+/* USER CODE END Prototypes */
+
 #ifdef __cplusplus
 }
 #endif
+#endif /*__ i2c_H */
 
-#endif /* __MAIN_H__ */
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
