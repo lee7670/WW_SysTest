@@ -50,13 +50,13 @@
 #include "WW_Loc.h"
 #include "WW_Sen.h"
 #include "WW_Defs.h"
+#include "WW_PP.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
 
 /* USER CODE END PV */
 
@@ -112,6 +112,8 @@ int main(void)
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   setup();
+  struct ultrasonic x;
+  float End_of_Window_Threshold = Get_Ultrasonic_Reading(&x)- WINDOWLENGTH;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,6 +122,8 @@ int main(void)
   {
 	  //Parse Recieved Serial Commands
 	  Parse_CMD(&htim9, &huart1);
+	  //Run Motion Planning Algorithm
+	  RunMotionPlanning(End_of_Window_Threshold);
 	  //Run PID Control to adjust motor PWM to hit targets
 	  Run_PID(&huart1);
   /* USER CODE END WHILE */
