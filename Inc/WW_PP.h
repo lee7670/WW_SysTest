@@ -22,6 +22,7 @@
 #define WINDOWANGLEDDISTANCE 744.2
 #define WINDOWLENGTH 1473.2
 
+void startPP();
 void RunMotionPlanning(float End_of_Window_Threshold);
 
 #endif /* WW_PP_H_ */

@@ -12,13 +12,26 @@ int len, lenr;
 char *dis, *rot;
 float lin_dis;
 float theta = ROTATIONANGLE;
+bool running = false;
+void startPP(){
+	running = !running;
+	return;
+}
 
 void RunMotionPlanning(float End_of_Window_Threshold){
-	double d_x = Get_Ultrasonic_Reading(&x);
+	if(!running){
+		return;
+	}
+	if(isFull()){
+
+			return;
+		}
+	//double d_x = Get_Ultrasonic_Reading(&x);
 	double d_y = Get_Ultrasonic_Reading(&y);
-	if ((d_x >= End_of_Window_Threshold) && (!BarrierCrossed)){
+	if (/*(d_x >= End_of_Window_Threshold) && (!BarrierCrossed)*/ false){
 		enq("b 180");
 		enq("l 991 500");
+		BarrierCrossed = true;
 	}
 
 	else {
@@ -31,7 +44,7 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 		strcat(buffer, dis);
 		strcat(buffer, " 200");
 		if (d_y <= WINDOWBOTTOMMARGIN + UltrasonicYPLACEMENT){
-			enq("sm");
+			Stop_Motors();
 		}
 		else {
 			enq(buffer);
@@ -91,7 +104,7 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 
 	}
 
-	if ((BarrierCrossed)&&(d_x<=WINDOWBOTTOMMARGIN)&&(d_y<=WINDOWBOTTOMMARGIN)){
+	if ((BarrierCrossed)/*&&(d_x<=WINDOWBOTTOMMARGIN)*/&&(d_y<=WINDOWBOTTOMMARGIN)){
 		return;
 	}
 }

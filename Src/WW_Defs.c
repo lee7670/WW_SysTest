@@ -7,7 +7,7 @@
 #include "WW_Defs.h"
 struct cmdqueue COM;
 //char** queue;
-char buildqueue[QUEUESIZE][100];
+char buildqueue[QUEUESIZE][2];
 char deqtemp[100];
 void initCOM(){
 	COM.back = QUEUESIZE-1;

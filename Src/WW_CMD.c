@@ -93,6 +93,8 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		uint16_t pwm = map(ang, 0, 180, 0, 255);
 		pwm = pwm + 255;
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_2, pwm);
+	}else if(strncmp(tkpnt, "p",1)==0){
+		startPP();
 	}else if(strncmp(tkpnt, "l",1)==0){
 		/*
 		 * Start Linear Move

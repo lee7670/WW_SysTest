@@ -112,8 +112,8 @@ int main(void)
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   setup();
-  struct ultrasonic x;
-  float End_of_Window_Threshold = Get_Ultrasonic_Reading(&x)- WINDOWLENGTH;
+  //struct ultrasonic x;
+  float End_of_Window_Threshold = WINDOWLENGTH;
   /* USER CODE END 2 */
 
   /* Infinite loop */
