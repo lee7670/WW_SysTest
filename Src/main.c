@@ -112,8 +112,6 @@ int main(void)
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   setup();
-  //struct ultrasonic x;
-  initUltrasonics(&htim5);
   float End_of_Window_Threshold = WINDOWLENGTH;
   /* USER CODE END 2 */
 

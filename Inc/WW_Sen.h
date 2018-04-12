@@ -29,6 +29,7 @@ struct imu{
 void Ping_Ultrasonic(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 double Get_Ultrasonic_Reading(struct ultrasonic* ult);
 void initUltrasonics(TIM_HandleTypeDef* htim);
+double GetUltrasonicY();
 void initIMU(I2C_HandleTypeDef* hi2c);
 uint8_t checkIMUID();
 void getEuler(float* result);

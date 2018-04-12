@@ -7,7 +7,7 @@
 #include "WW_Defs.h"
 struct cmdqueue COM;
 //char** queue;
-char buildqueue[QUEUESIZE][2];
+char buildqueue[QUEUESIZE][100];
 char deqtemp[100];
 void initCOM(){
 	COM.back = QUEUESIZE-1;
@@ -54,4 +54,7 @@ int enq(char* str){
 	strcpy(COM.cmds[COM.back], temp);
 	COM.size += 1;
 	return true;
+}
+int GetCurrentSize(){
+	return COM.size;
 }

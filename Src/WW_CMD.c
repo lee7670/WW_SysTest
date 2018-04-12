@@ -30,7 +30,12 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM,UART_HandleTypeDef* huart){
 			EXE_CMD(cmd, Fan_TIM, huart);
 		}
 		else{
-			enq(cmd);
+			if (cmd[0]=='p'){
+				startPP();
+			}
+			else {
+				enq(cmd);
+			}
 		}
 		//signal ready for new command
 		Transfer_cplt = 0;

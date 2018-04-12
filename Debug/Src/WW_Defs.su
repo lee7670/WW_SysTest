@@ -1,5 +1,6 @@
-WW_Defs.c:12:6:initCOM	12	static
+WW_Defs.c:12:6:initCOM	8	static
 WW_Defs.c:24:5:isFull	0	static
 WW_Defs.c:29:5:isEmpty	0	static
 WW_Defs.c:33:7:deq	24	static
 WW_Defs.c:45:5:enq	120	static
+WW_Defs.c:58:5:GetCurrentSize	0	static

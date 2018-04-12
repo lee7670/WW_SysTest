@@ -16,7 +16,7 @@
 #    define M_PI 3.14159265358979323846
 #endif
 #define SYSCLK 32000000.0F
-#define QUEUESIZE 25
+#define QUEUESIZE 5
 struct cmdqueue{
 	uint8_t front;
 	uint8_t back;
@@ -29,4 +29,5 @@ int isFull();
 int isEmpty();
 char* deq();
 int enq(char* str);
+int GetCurrentSize();
 #endif /* WW_DEFS_H_ */

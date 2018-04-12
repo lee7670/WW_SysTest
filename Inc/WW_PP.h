@@ -11,15 +11,16 @@
 #include "stm32l1xx_hal_tim.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "WW_Defs.h"
 #include "WW_CMD.h"
 #include "WW_Sen.h"
 #include "tim.h"
-#define UltrasonicYPLACEMENT 0.0
-#define WINDOWBOTTOMMARGIN 88.9
+#define UltrasonicYPLACEMENT 12.7
+#define WINDOWBOTTOMMARGIN 48.1
 #define ROTATIONANGLE 43.6
-#define WINDOWANGLEDDISTANCE 744.2
+#define WINDOWANGLEDDISTANCE (744.2-230)
 #define WINDOWLENGTH 1473.2
 
 void startPP();
