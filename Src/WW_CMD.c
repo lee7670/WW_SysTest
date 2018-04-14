@@ -26,7 +26,7 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM,UART_HandleTypeDef* huart){
 		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
 		//add c string null terminator
 		cmd[Transfer_cplt]='\0';
-		if(/*true||*/(cmd[0] == 's')||(cmd[0]=='t')||(cmd[0]=='f')){
+		if(/*true||*/(cmd[0] == 's')||(cmd[0]=='t')||(cmd[0]=='f')||(cmd[0]=='u')){
 			EXE_CMD(cmd, Fan_TIM, huart);
 		}
 		else{
@@ -176,6 +176,11 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		len = sprintf(buffer,"Left Encoder:%i\r\n", (int)(TIM2->CNT)); //sprintf will return the length of 'buffer'
 		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
 	#endif
+	}else if(strncmp(tkpnt, "u",1)==0){
+		double d_y = 10.0*GetUltrasonicY();
+		char buffer[25];
+		uint8_t len=sprintf(buffer,"dis:%i\r\n", (int)(d_y)); //sprintf will return the length of 'buffer'
+		HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
 	}else{
 		char buffer[25];
 		uint8_t len = sprintf(buffer,"Invalid Command\r\n"); //sprintf will return the length of 'buffer'

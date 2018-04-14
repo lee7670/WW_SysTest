@@ -19,7 +19,7 @@ void Ping_Ultrasonic(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin){
 double Get_Ultrasonic_Reading(struct ultrasonic* ult){
 	double d;
 	d = (((ult->echo_pulse_width_count)*(1/SYSCLK))/(1e-6))*(0.034/2);
-	d = (0.997889*d)-0.26247;
+	d = (0.997889*d)-0.26247 + 1.466;
 	return d;
 }
 void initUltrasonics(TIM_HandleTypeDef* htim){
@@ -40,14 +40,14 @@ void initUltrasonics(TIM_HandleTypeDef* htim){
 	y.echo_rising_count = 0;
 	y.edge_detect = false;
 	y.IC = htim;
-	HAL_GPIO_WritePin(y.GPIO_PingBank,y.GPIO_PingPin,GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(y.GPIO_PingBank, y.GPIO_PingPin, GPIO_PIN_RESET);
 	HAL_Delay(500);
 	return;
 }
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
-	if (htim->Instance==TIM5)
+	if (htim->Instance == TIM5)
 	{
-		if ((htim->Channel)==HAL_TIM_ACTIVE_CHANNEL_3){
+		if ((htim->Channel) == HAL_TIM_ACTIVE_CHANNEL_3){
 			y.edge_detect = !(y.edge_detect);
 			//__HAL_TIM_SET_CAPTUREPOLARITY()
 			if (y.edge_detect){
@@ -56,7 +56,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 			}
 			else {
 				y.echo_falling_count = __HAL_TIM_GET_COMPARE(y.IC, TIM_CHANNEL_3);
-				if(y.echo_falling_count>y.echo_rising_count){
+				if(y.echo_falling_count > y.echo_rising_count){
 					__HAL_TIM_SetCounter(y.IC, 0);    //reset counter after input capture interrupt occurs
 					y.echo_pulse_width_count = y.echo_falling_count - y.echo_rising_count;
 				}
@@ -66,7 +66,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 					y.echo_pulse_width_count = y.echo_falling_count - y.echo_rising_count;
 				}
 			}
-		} else if((htim->Channel)==HAL_TIM_ACTIVE_CHANNEL_4){
+		} else if((htim->Channel) == HAL_TIM_ACTIVE_CHANNEL_4){
 			x.edge_detect = !(x.edge_detect);
 			//__HAL_TIM_SET_CAPTUREPOLARITY()
 			if (x.edge_detect){
@@ -75,7 +75,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 			}
 			else {
 				x.echo_falling_count = __HAL_TIM_GET_COMPARE(x.IC, TIM_CHANNEL_4);
-				if(x.echo_falling_count>x.echo_rising_count){
+				if(x.echo_falling_count > x.echo_rising_count){
 					__HAL_TIM_SetCounter(x.IC, 0);    //reset counter after input capture interrupt occurs
 					x.echo_pulse_width_count = x.echo_falling_count - x.echo_rising_count;
 				}

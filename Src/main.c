@@ -190,32 +190,38 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 void setup(){
-	//start code initiation
-	char buffer[25];
-	uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
-	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
+
 	//start PWM clocks
 	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
+
 	//init motor data structures
 	initMot(&htim3, &htim2, &htim11, &htim10);
+
 	//init command queue data structure
 	initCOM();
+
 	//init IMU data Structure
 	initIMU(&hi2c2);
-	//start millis() timer clock interrupt
-	HAL_TIM_Base_Start_IT(&htim6);
+
 	//start encoder tracking
 	HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);
 	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
-	//Init Ultrasonic Data Structures
+
+	//Init Ultrasonic Data Structures and interrupts
 	initUltrasonics(&htim5);
 	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_3);
 	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_4);
+
 	//start UART receive interrupt
 	UART_ReadStart(&huart1);
+
+	//start code initiation
+	char buffer[25];
+	uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
+	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
 	return;
 }
 /* USER CODE END 4 */

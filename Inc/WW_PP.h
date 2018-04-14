@@ -7,6 +7,7 @@
 
 #ifndef WW_PP_H_
 #define WW_PP_H_
+
 #include "stm32l1xx_hal.h"
 #include "stm32l1xx_hal_tim.h"
 #include <stdbool.h>
@@ -17,12 +18,19 @@
 #include "WW_CMD.h"
 #include "WW_Sen.h"
 #include "tim.h"
+#include "usart.h"
+
 #define UltrasonicYPLACEMENT 12.7
+
 #define WINDOWBOTTOMMARGIN 48.1
+
 #define ROTATIONANGLE 43.6
+
 #define WINDOWANGLEDDISTANCE (744.2-230)
+
 #define WINDOWLENGTH 1473.2
 
+#define BARRIERTHRESHOLD 150
 void startPP();
 void RunMotionPlanning(float End_of_Window_Threshold);
 
