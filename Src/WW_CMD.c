@@ -49,13 +49,7 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 	char* tkpnt;
 	//get first token
 	tkpnt = strtok(cleaningbuffer, " ");
-	if(strncmp(tkpnt, "s",1)==0){
-		/*
-		 * Stop command, immediately stops all PWM, Brakes, and zeros all targets
-		 */
-		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, 0);
-		Stop_Motors();
-	}else if(strncmp(tkpnt, "sm",2)==0){
+	if(strncmp(tkpnt, "sm",2)==0){
 		/*
 		 * Stop motor command, immediately stops motor PWM, Brakes, and zeros all targets
 		 */
@@ -65,6 +59,12 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		 * Stop fan command, immediately stops fan pwm
 		 */
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, 0);
+	}else if(strncmp(tkpnt, "s",1)==0){
+		/*
+		 * Stop command, immediately stops all PWM, Brakes, and zeros all targets
+		 */
+		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, 0);
+		Stop_Motors();
 	}else if (strncmp(tkpnt, "r",1)==0){
 		tkpnt = strtok(NULL, " ");
 		float rotomega = atof(tkpnt);
@@ -72,6 +72,42 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		float rotphi = atof(tkpnt);
 		float rotR = 0.0;
 		setArc(rotR, rotomega, rotphi);
+	}else if(strncmp(tkpnt, "fr",2)==0){
+		/*
+		 * Fan Ramp command
+		 * Activates fan pin PWM
+		 * Accepts values from 0 to 255 which is mapped from 1ms to 2ms pulse width
+		 * To control fans, with fan power initially off, make sure PWM is off by sending "f -255"
+		 * After fan power is applied, wait for 3 beeps, increasing in pitch
+		 * Then apply 200 throttle in 15 s"f 200 15000"
+		 * Wait for arming beeps, there should only be two beeps, a low and a high,
+		 * if not, turn off power, wait for caps to discharge and reset pwm to zero "f -255".
+		 * Any fan command from 0 to 255 will then start the fans, be careful
+		 */
+		tkpnt = strtok(NULL, " ");
+		int target = atoi(tkpnt);
+		tkpnt = strtok(NULL, " ");
+		uint32_t time = atoi(tkpnt);
+		target = target + 255;
+		uint32_t current = __HAL_TIM_GetCompare(Fan_TIM, TIM_CHANNEL_1);
+		int diff = target - (int)current;
+		uint32_t timedel = 0;
+		bool inc = true;
+		if(diff > 0){
+			timedel = (uint32_t)(((float)time)/((float)(diff)));
+		}else{
+			timedel = (uint32_t)(((float)time)/abs((float)(diff)));
+			inc = false;
+		}
+		for(uint32_t pwm = current; pwm != target; ){
+			HAL_Delay(timedel);
+			__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, pwm);
+			if(inc){
+				pwm++;
+			}else{
+				pwm--;
+			}
+		}
 	}else if(strncmp(tkpnt, "f",1)==0){
 		/*
 		 * Fan command
