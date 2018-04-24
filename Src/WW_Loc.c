@@ -119,9 +119,9 @@ void Run_PID(UART_HandleTypeDef* huart){
 	prevtim = tim;
 	//calculate current RPM for PID velocity control and Real linear speed for stop condition
 	float vel1 = ((float)newposition1) * 10; //encoder pulses per second
-	float rpm1 = ((vel1 * 60)/750); //Measured motor RPM
+	float rpm1 = ((vel1 * 60)/ENCODERCOUNTSPERREV); //Measured motor RPM
 	float vel2 = ((float)newposition2) * 10; //encoder pulses per second
-	float rpm2 = ((vel2 * 60)/750);
+	float rpm2 = ((vel2 * 60)/ENCODERCOUNTSPERREV);
 	float realspeed1 = (rpm1 * 2.0 * M_PI * WHEELRAD)/60; //Linear speed in mm/s
 	float realspeed2 = (rpm2 * 2.0 * M_PI * WHEELRAD)/60; //Linear speed in mm/s
 	//if negative, reverse

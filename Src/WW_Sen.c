@@ -88,10 +88,40 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 		}
 	}
 }
-void initIMU(I2C_HandleTypeDef* hi2c){
+bool initIMU(I2C_HandleTypeDef* hi2c){
 	accel.I2C = hi2c;
 	accel.address = DEV_ADD;
-	return;
+	uint8_t id = checkIMUID();
+	if(id != 0xA0){
+		HAL_Delay(500);
+		id = checkIMUID();
+		if(id != 0xA0){
+			return false;
+		}
+	}
+	HAL_Delay(30);
+	setMode(OPERATION_MODE_CONFIG);
+	HAL_Delay(10);
+
+	/* Reset */
+	write8(BNO055_SYS_TRIGGER_ADDR, 0x20);
+	while (checkIMUID() != BNO055_ID)
+	{
+		HAL_Delay(10);
+	}
+	HAL_Delay(50);
+
+	/* Set to normal power mode */
+	write8(BNO055_PWR_MODE_ADDR, POWER_MODE_NORMAL);
+	HAL_Delay(10);
+
+	write8(BNO055_PAGE_ID_ADDR, 0x00);
+	write8(BNO055_SYS_TRIGGER_ADDR, 0x00);
+	HAL_Delay(10);
+	/* Set the requested operating mode (see section 3.3) */
+	setMode(OPERATION_MODE_IMUPLUS);
+	HAL_Delay(20);
+	return true;
 }
 uint8_t read8(uint8_t regid){
 	uint8_t result = 0;
@@ -101,7 +131,7 @@ uint8_t read8(uint8_t regid){
 }
 void readLen(uint8_t regid, uint8_t* buffer, uint8_t len){
 	HAL_I2C_Master_Transmit(accel.I2C, DEV_ADD, &regid, 1, 100);
-	HAL_I2C_Master_Receive(accel.I2C, DEV_ADD, buffer, 1, 100);
+	HAL_I2C_Master_Receive(accel.I2C, DEV_ADD, buffer, len, 100);
 	return;
 }
 void write8(uint8_t regid, uint8_t val){
@@ -127,4 +157,13 @@ void getEuler(float* result){
 double GetUltrasonicY(){
 	Ping_Ultrasonic(y.GPIO_PingBank,y.GPIO_PingPin);
 	return Get_Ultrasonic_Reading(&y);
+}
+double GetUltrasonicX(){
+	Ping_Ultrasonic(x.GPIO_PingBank,x.GPIO_PingPin);
+	return Get_Ultrasonic_Reading(&x);
+}
+void setMode(uint8_t modeid){
+	write8(OPR_MODE_ADD, modeid);
+	HAL_Delay(30);
+	return;
 }

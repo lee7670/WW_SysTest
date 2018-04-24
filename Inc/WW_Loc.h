@@ -24,6 +24,7 @@
 #define KD 0.07
 #define PID_PERIOD 25
 #define TOLERANCE 10
+#define ENCODERCOUNTSPERREV 893.76f
 struct motor{
 	float setRPM;
 	bool dir;

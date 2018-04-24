@@ -95,7 +95,7 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		 */
 		tkpnt = strtok(NULL, " ");
 		int16_t pwm = atoi(tkpnt);
-		pwm = map(pwm, 0, 180, 125, 500);
+		//pwm = map(pwm, 0, 180, 255, 512);
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_2, pwm);
 	}else if(strncmp(tkpnt, "p",1)==0){
 		startPP();
@@ -153,7 +153,7 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		char buffer[100];
 		uint8_t len = sprintf(buffer,"ID :%x\r\n", id); //sprintf will return the length of 'buffer'
 		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
-		write8(OPR_MODE_ADD, OPERATION_MODE_IMUPLUS);
+		setMode(OPERATION_MODE_IMUPLUS);
 		float euler[3];
 		getEuler(euler);
 		len = sprintf(buffer,"EulerX :%i\r\n", (int)(euler[0])); //sprintf will return the length of 'buffer'
@@ -178,8 +178,12 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 	#endif
 	}else if(strncmp(tkpnt, "u",1)==0){
 		double d_y = 10.0*GetUltrasonicY();
+		HAL_Delay(100);
+		double d_x = 10.0*GetUltrasonicX();
 		char buffer[25];
-		uint8_t len=sprintf(buffer,"dis:%i\r\n", (int)(d_y)); //sprintf will return the length of 'buffer'
+		uint8_t len=sprintf(buffer,"disy:%i\r\n", (int)(d_y)); //sprintf will return the length of 'buffer'
+		HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
+		len=sprintf(buffer,"disx:%i\r\n", (int)(d_x)); //sprintf will return the length of 'buffer'
 		HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
 	}else{
 		char buffer[25];
