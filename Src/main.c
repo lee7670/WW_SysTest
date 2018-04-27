@@ -46,6 +46,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "WW_CMD.h"
 #include "WW_Loc.h"
 #include "WW_Sen.h"
@@ -57,6 +58,8 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+double d_y;
+double a_y;
 
 /* USER CODE END PV */
 
@@ -122,7 +125,7 @@ int main(void)
 	  //Parse Recieved Serial Commands
 	  Parse_CMD(&htim9, &huart1);
 	  //Run Motion Planning Algorithm
-	  RunMotionPlanning(End_of_Window_Threshold);
+	  RunMotionPlanning(End_of_Window_Threshold, &huart1);
 	  //Run PID Control to adjust motor PWM to hit targets
 	  Run_PID(&huart1);
   /* USER CODE END WHILE */
@@ -209,12 +212,18 @@ void setup(){
 	//start encoder tracking
 	HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);
 	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);
+	HAL_TIM_IC_Start_IT(&htim2,TIM_CHANNEL_1);
+	HAL_TIM_IC_Start_IT(&htim2,TIM_CHANNEL_2);
+	HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+	HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_2);
 
 	//Init Ultrasonic Data Structures and interrupts
 	initUltrasonics(&htim5);
 	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_3);
 	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_4);
-
+	HAL_Delay(10);
+	d_y = GetUltrasonicY();
+	a_y = d_y/(cos(ROTATIONANGLE*(M_PI/180)));
 	//start UART receive interrupt
 	UART_ReadStart(&huart1);
 
@@ -223,6 +232,12 @@ void setup(){
 	uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
 	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
 	return;
+}
+double Get_PP_LinDis(){
+	return 10.0*d_y;
+}
+double Get_PP_AngledDis(){
+	return 10.0*a_y;
 }
 /* USER CODE END 4 */
 

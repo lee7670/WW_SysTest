@@ -26,16 +26,11 @@ void Parse_CMD(TIM_HandleTypeDef* Fan_TIM,UART_HandleTypeDef* huart){
 		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
 		//add c string null terminator
 		cmd[Transfer_cplt]='\0';
-		if(/*true||*/(cmd[0] == 's')||(cmd[0]=='t')||(cmd[0]=='f')||(cmd[0]=='u')){
+		if(/*true||*/(cmd[0] == 's')||(cmd[0]=='t')||(cmd[0]=='f')||(cmd[0]=='u')||(cmd[0]=='o')||(cmd[0]=='p')){
 			EXE_CMD(cmd, Fan_TIM, huart);
 		}
 		else{
-			if (cmd[0]=='p'){
-				startPP();
-			}
-			else {
-				enq(cmd);
-			}
+			enq(cmd);
 		}
 		//signal ready for new command
 		Transfer_cplt = 0;
@@ -134,7 +129,9 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		//pwm = map(pwm, 0, 180, 255, 512);
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_2, pwm);
 	}else if(strncmp(tkpnt, "p",1)==0){
-		startPP();
+		togglePP();
+	}else if(strncmp(tkpnt, "o",1)==0){
+		togglePosPID();
 	}else if(strncmp(tkpnt, "l",1)==0){
 		/*
 		 * Start Linear Move
@@ -213,9 +210,9 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
 	#endif
 	}else if(strncmp(tkpnt, "u",1)==0){
-		double d_y = 10.0*GetUltrasonicY();
+		double d_y = Get_PP_LinDis();
 		HAL_Delay(100);
-		double d_x = 10.0*GetUltrasonicX();
+		double d_x = Get_PP_AngledDis();
 		char buffer[25];
 		uint8_t len=sprintf(buffer,"disy:%i\r\n", (int)(d_y)); //sprintf will return the length of 'buffer'
 		HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);

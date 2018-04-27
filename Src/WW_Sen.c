@@ -8,6 +8,8 @@
 struct imu accel;
 struct ultrasonic x;
 struct ultrasonic y;
+bool encBval_R;
+bool encBval_L;
 
 void Ping_Ultrasonic(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin){
 	HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
@@ -19,7 +21,7 @@ void Ping_Ultrasonic(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin){
 double Get_Ultrasonic_Reading(struct ultrasonic* ult){
 	double d;
 	d = (((ult->echo_pulse_width_count)*(1/SYSCLK))/(1e-6))*(0.034/2);
-	d = (0.997889*d)-0.26247 + 1.466;
+	d = (0.997889*d)-0.26247;
 	return d;
 }
 void initUltrasonics(TIM_HandleTypeDef* htim){
@@ -85,6 +87,20 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 					x.echo_pulse_width_count = x.echo_falling_count - x.echo_rising_count;
 				}
 			}
+		}
+	}
+
+	if (htim->Instance == TIM2)
+	{
+		if ((htim->Channel) == HAL_TIM_ACTIVE_CHANNEL_1){
+			encBval_L = (GPIOA->IDR & GPIO_PIN_1);
+		}
+	}
+
+	if (htim->Instance == TIM3)
+	{
+		if ((htim->Channel) == HAL_TIM_ACTIVE_CHANNEL_1){
+			encBval_R = (GPIOC->IDR & GPIO_PIN_7);
 		}
 	}
 }
@@ -155,8 +171,25 @@ void getEuler(float* result){
 	return;
 }
 double GetUltrasonicY(){
+//	double dist_sample;
+//	double min = 0.0;
+//	for (int i=0;i<20;i++){
+//		Ping_Ultrasonic(y.GPIO_PingBank,y.GPIO_PingPin);
+//		dist_sample = Get_Ultrasonic_Reading(&y) + 0.728;
+//		if (i==0){
+//			min = dist_sample;
+//		}
+//		else {
+//			if (dist_sample<min){
+//				min = dist_sample;
+//			}
+//		}
+//	}
+//	HAL_Delay(10);
+//	Ping_Ultrasonic(y.GPIO_PingBank,y.GPIO_PingPin);
+//	return min;
 	Ping_Ultrasonic(y.GPIO_PingBank,y.GPIO_PingPin);
-	return Get_Ultrasonic_Reading(&y);
+	return (Get_Ultrasonic_Reading(&y)+0.728);
 }
 double GetUltrasonicX(){
 	Ping_Ultrasonic(x.GPIO_PingBank,x.GPIO_PingPin);
@@ -166,4 +199,10 @@ void setMode(uint8_t modeid){
 	write8(OPR_MODE_ADD, modeid);
 	HAL_Delay(30);
 	return;
+}
+bool getEncB_Left_Val(){
+	return encBval_L;
+}
+bool getEncB_Right_Val(){
+	return encBval_R;
 }

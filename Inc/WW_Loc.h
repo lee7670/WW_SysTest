@@ -17,11 +17,14 @@
 #include "WW_CMD.h"
 #include "tim.h"
 #include "usart.h"
-#define WHEELRAD 44.45
+#define WHEELRAD 34.925
 #define CENTERDIS 222.25
 #define KP 0.9
 #define KI 3.3
 #define KD 0.07
+#define KP_Pos 20.0
+#define KI_Pos 0.0
+#define KD_Pos 3.0
 #define PID_PERIOD 25
 #define TOLERANCE 10
 #define ENCODERCOUNTSPERREV 893.76f
@@ -34,8 +37,12 @@ struct motor{
 	TIM_HandleTypeDef* encoder;
 	TIM_HandleTypeDef* pwm;
 	PIDControl PID;
+	PIDControl PosPID;
 };
 
+void togglePosPID();
+void startPosPID();
+void stopPosPID();
 void setLin(float dis, float spd);
 void setArc(float r, float w, float phi);
 void initMot(TIM_HandleTypeDef* TIM_RightEnc, TIM_HandleTypeDef* TIM_LeftEnc,
@@ -44,7 +51,7 @@ void Run_PID(UART_HandleTypeDef* huart);
 uint16_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max);
 void Set_MotorDir(void);
 uint16_t Get_EncoderPos(struct motor* Mot);
-void Set_PIDOut(float rpm1, float rpm2, UART_HandleTypeDef* huart);
+void Set_PIDOut(float rpm1, float rpm2, float distance_traveled1, float distance_traveled2, UART_HandleTypeDef* huart);
 void Run_MotorPWM(int16_t pwm);
 uint16_t Get_RightEncoderPos();
 uint16_t Get_LeftEncoderPos();

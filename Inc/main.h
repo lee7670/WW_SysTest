@@ -104,6 +104,8 @@
  extern "C" {
 #endif
 void _Error_Handler(char *, int);
+double Get_PP_LinDis();
+double Get_PP_AngledDis();
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 #ifdef __cplusplus

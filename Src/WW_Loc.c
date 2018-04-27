@@ -8,6 +8,19 @@
 #include "WW_Loc.h"
 struct motor left;
 struct motor right;
+bool posPID = false;
+void togglePosPID(){
+	posPID = !posPID;
+	return;
+}
+void startPosPID(){
+	posPID = true;
+	return;
+}
+void stopPosPID(){
+	posPID = false;
+	return;
+}
 //initiate right and left motor data structures. Also initializes PID controllers.
 void initMot(TIM_HandleTypeDef* TIM_RightEnc, TIM_HandleTypeDef* TIM_LeftEnc,
 		TIM_HandleTypeDef* TIM_RightMot, TIM_HandleTypeDef* TIM_LeftMot){
@@ -32,8 +45,10 @@ void initMot(TIM_HandleTypeDef* TIM_RightEnc, TIM_HandleTypeDef* TIM_LeftEnc,
 	left.setDis = 0.0;
 	left.distance_traveled = 0.0f;
 
-	PIDInit(&right.PID, KP, KI, KD, .1, ((float)PID_PERIOD)/1000.0, 255, AUTOMATIC, DIRECT);
-	PIDInit(&left.PID, KP, KI, KD, .1, ((float)PID_PERIOD)/1000.0, 255, AUTOMATIC, DIRECT);
+	PIDInit(&right.PID, KP, KI, KD, ((float)PID_PERIOD)/1000.0, 0, 255, AUTOMATIC, DIRECT);
+	PIDInit(&left.PID, KP, KI, KD, ((float)PID_PERIOD)/1000.0, 0, 255, AUTOMATIC, DIRECT);
+	PIDInit(&right.PosPID, KP_Pos, KI_Pos, KD_Pos, ((float)PID_PERIOD)/1000.0, 0, 255, AUTOMATIC, DIRECT);
+	PIDInit(&left.PosPID, KP_Pos, KI_Pos, KD_Pos, ((float)PID_PERIOD)/1000.0, 0, 255, AUTOMATIC, DIRECT);
 
 }
 //sets targets for arc move
@@ -133,12 +148,27 @@ void Run_PID(UART_HandleTypeDef* huart){
 //	{
 //		rpm2 = -1*rpm2;
 //	}
-	//run PID calculations and set outputs
-	Set_PIDOut(rpm1, rpm2, huart);
 	//check for stop condition
+	if (posPID||(isPP_Running()&&(right.setRPM == 0)&&(left.setRPM == 0))) {
+		if ((((realspeed1*60.0)/(2.0*M_PI*WHEELRAD))>110)||(((realspeed2*60.0)/(2.0*M_PI*WHEELRAD))>110)){
+			return;
+		}
+		if (getEncB_Right_Val()== false){
+			realspeed1 = -1*realspeed1;
+		}
+		if (getEncB_Left_Val()== true){
+			realspeed2 = -1*realspeed2;
+		}
+	}
+
 	right.distance_traveled = right.distance_traveled + (realspeed1*deltat*1e-3); //integrate linear velocity to obtain distance
 	left.distance_traveled = left.distance_traveled + (realspeed2*deltat*1e-3); //integrate linear velocity to obtain distance
-	if ((right.setDis==0 && left.setDis == 0)||(abs(right.distance_traveled-right.setDis) <= TOLERANCE)||(abs(left.distance_traveled-left.setDis) <= TOLERANCE) ){
+	float distance_traveled1 = right.distance_traveled;
+	float distance_traveled2 = left.distance_traveled;
+
+		//run PID calculations and set outputs
+	Set_PIDOut(rpm1,rpm2,distance_traveled1,distance_traveled2,huart);
+	if ((posPID==false)&&((right.setDis==0 && left.setDis == 0)||(abs(right.distance_traveled-right.setDis) <= TOLERANCE)||(abs(left.distance_traveled-left.setDis) <= TOLERANCE))){
 		//Stop condition, reset all values
 		__HAL_TIM_SetCompare(right.pwm, TIM_CHANNEL_1, 0);
 		__HAL_TIM_SetCompare(left.pwm, TIM_CHANNEL_1, 0);
@@ -192,20 +222,14 @@ uint16_t Get_RightEncoderPos(){
 }
 //sets GPIOS for requested motor direction/break for L298 driver based on motor's data structure values
 void Set_MotorDir(){
-	if (right.setRPM == 0.0) {
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
-	} else if(right.dir == true) {
+	if(left.dir == true) {
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
 	} else {
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
 	}
-	if (left.setRPM == 0.0) {
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
-	}else if(left.dir == true) {
+	if(right.dir == true) {
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
 	} else {
@@ -214,23 +238,62 @@ void Set_MotorDir(){
 	}
 }
 //updates left and right PID setpoints and Inputs, computes new output and updates PWM
-void Set_PIDOut(float rpm1, float rpm2, UART_HandleTypeDef* huart){
-	PIDSetpointSet(&right.PID,right.setRPM);
-	PIDInputSet(&right.PID,rpm1);
-	PIDCompute(&right.PID);
-	PIDSetpointSet(&left.PID,left.setRPM);
-	PIDInputSet(&left.PID,rpm2);
-	PIDCompute(&left.PID);
-	uint16_t speed1 = (uint16_t)PIDOutputGet(&right.PID);
-	//uint16_t speed1 = 0;
-	uint16_t speed2 = (uint16_t)PIDOutputGet(&left.PID);
-//	if (abs(left.setRPM) > 0) {
-//		speed1 = (uint16_t)(1.2*(abs(right.setRPM)/abs(left.setRPM))*speed2);
-//	}
+void Set_PIDOut(float rpm1, float rpm2, float distance_traveled1, float distance_traveled2, UART_HandleTypeDef* huart){
+	uint16_t speed1;
+	uint16_t speed2;
+	if (posPID||(isPP_Running()&&(right.setRPM == 0)&&(left.setRPM == 0))){
+		float distInput1 = distance_traveled1;
+		float distInput2 = distance_traveled2;
+		if (distance_traveled1 > 0) {
+			distInput1 = -1*distInput1;
+			right.dir = true;
+			//right.setDis = distance_traveled1;
+		}
+		else {
+			right.dir = false;
+			//right.setDis = -1*distance_traveled1;
+		}
+		if (distance_traveled2 > 0) {
+			left.dir = true;
+			distInput2 = -1*distInput2;
+			//left.setDis = distance_traveled2;
+		}
+		else {
+			left.dir = false;
+			//left.setDis = -1*distance_traveled2;
+		}
+			PIDSetpointSet(&right.PosPID,0.0);
+			PIDInputSet(&right.PosPID,distInput1);
+			PIDCompute(&right.PosPID);
+			PIDSetpointSet(&left.PosPID,0.0);
+			PIDInputSet(&left.PosPID,distInput2);
+			PIDCompute(&left.PosPID);
+
+
+		speed1 = (uint16_t)PIDOutputGet(&right.PosPID);
+		speed2 = (uint16_t)PIDOutputGet(&left.PosPID);
+		Set_MotorDir();
+	}
+	else {
+		PIDSetpointSet(&right.PID,right.setRPM);
+		PIDInputSet(&right.PID,rpm1);
+		PIDCompute(&right.PID);
+		PIDSetpointSet(&left.PID,left.setRPM);
+		PIDInputSet(&left.PID,rpm2);
+		PIDCompute(&left.PID);
+
+		speed1 = (uint16_t)PIDOutputGet(&right.PID);
+		//uint16_t speed1 = 0;
+		speed2 = (uint16_t)PIDOutputGet(&left.PID);
+	//	if (abs(left.setRPM) > 0) {
+	//		speed1 = (uint16_t)(1.2*(abs(right.setRPM)/abs(left.setRPM))*speed2);
+	//	}
+	}
+
 	speed1 = map(speed1, 0, 255, 0, 2000);
 	speed2 = map(speed2, 0, 255, 0, 2000);
 //	char buffer[25];
-//	uint8_t len = sprintf(buffer,"pwm:%i\r\n", speed1); //sprintf will return the length of 'buffer'
+//	uint8_t len = sprintf(buffer,"pwm:%i\r\n", speed2); //sprintf will return the length of 'buffer'
 //	HAL_UART_Transmit(huart, buffer, len, 1000);
 	__HAL_TIM_SetCompare(right.pwm, TIM_CHANNEL_1, speed1);
 	__HAL_TIM_SetCompare(left.pwm, TIM_CHANNEL_1, speed2);

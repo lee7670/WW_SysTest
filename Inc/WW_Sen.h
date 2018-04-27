@@ -38,4 +38,6 @@ void write8(uint8_t regid, uint8_t val);
 void readLen(uint8_t regid, uint8_t* buffer, uint8_t len);
 uint8_t read8(uint8_t regid);
 void setMode(uint8_t modeid);
+bool getEncB_Left_Val();
+bool getEncB_Right_Val();
 #endif /* WW_SEN_H_ */
