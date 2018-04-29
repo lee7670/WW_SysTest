@@ -14,7 +14,8 @@ double d_y;
 bool running = false;
 int i = 0;
 void startPP(){
-	running = !running;
+	running = true;
+	stopPosPID();
 	return;
 }
 void stopPP(){
@@ -30,14 +31,14 @@ bool isPP_Running(){
 }
 void togglePP(){
 	if (running==false){
-		running = true;
+		startPP();
 	}
 	else
 	{
 		stopPP();
 	}
 }
-void RunMotionPlanning(float End_of_Window_Threshold, UART_HandleTypeDef* huart){
+void RunMotionPlanning(float End_of_Window_Threshold){
 	//only operate if path planning is running
 	if(!running){
 		return;
@@ -46,9 +47,9 @@ void RunMotionPlanning(float End_of_Window_Threshold, UART_HandleTypeDef* huart)
 	if (GetCurrentSize()+QUEUESIZE>QUEUESIZE){
 	    return;
 	}
-	if (i >= 5){
+	if (i >= 6){
 		running = false;
-		EXE_CMD("o", &htim9, huart);
+		startPosPID();
 	}
 	//double d_x = Get_Ultrasonic_Reading(&x);
 	//get ultrasonic y distance
@@ -74,38 +75,38 @@ void RunMotionPlanning(float End_of_Window_Threshold, UART_HandleTypeDef* huart)
 		char temp[5];
 		char* out;
 		out = gcvt(lin_dis,5, temp);
-		sprintf(buffer,"l %s 100\n",out);
+		sprintf(buffer,"l %s 150\n",out);
 		enq(buffer);
 		//if barrier not crossed traverse one way, switch directions once crossed
 		if (!BarrierCrossed){
 			memset(buffer, 0, 15);
-			out = gcvt(theta,5, temp);
-			sprintf(buffer,"r -15 %s\n",out);
+			out = gcvt((theta*(11/9)),5, temp);
+			sprintf(buffer,"r -6 %s\n",out);
 			enq(buffer);
 		}
 		else {
 			memset(buffer, 0, 15);
-			out = gcvt(theta,5, temp);
-			sprintf(buffer,"r 15 %s\n",out);
+			out = gcvt((theta*(11/9)),5, temp);
+			sprintf(buffer,"r 6 %s\n",out);
 			enq(buffer);
 		}
 
-		lin_dis = lin_dis/(cos(ROTATIONANGLE*(M_PI/180)));
+		lin_dis = -1*(lin_dis/(cos(ROTATIONANGLE*(M_PI/180)))) - 190.0;
 		memset(buffer, 0, 15);
 		out = gcvt(lin_dis,5, temp);
-		sprintf(buffer,"l %s -100\n",out);
+		sprintf(buffer,"l %s -300\n",out);
 		enq(buffer);
 
 		if (!BarrierCrossed){
 			memset(buffer, 0, 15);
-			out = gcvt(theta,5, temp);
-			sprintf(buffer,"r 15 %s\n",out);
+			out = gcvt((theta*(11/9)),5, temp);
+			sprintf(buffer,"r 6 %s\n",out);
 			enq(buffer);
 		}
 		else {
 			memset(buffer, 0, 100);
-			out = gcvt(theta,5, temp);
-			sprintf(buffer,"r -15 %s\n",out);
+			out = gcvt((theta*(11/9)),5, temp);
+			sprintf(buffer,"r -6 %s\n",out);
 			enq(buffer);
 		}
 		i++;

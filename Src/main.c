@@ -125,7 +125,7 @@ int main(void)
 	  //Parse Recieved Serial Commands
 	  Parse_CMD(&htim9, &huart1);
 	  //Run Motion Planning Algorithm
-	  RunMotionPlanning(End_of_Window_Threshold, &huart1);
+	  RunMotionPlanning(End_of_Window_Threshold);
 	  //Run PID Control to adjust motor PWM to hit targets
 	  Run_PID(&huart1);
   /* USER CODE END WHILE */
@@ -231,6 +231,7 @@ void setup(){
 	char buffer[25];
 	uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
 	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
+	startPosPID();
 	return;
 }
 double Get_PP_LinDis(){

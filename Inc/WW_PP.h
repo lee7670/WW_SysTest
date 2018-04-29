@@ -24,9 +24,9 @@
 
 #define UltrasonicYPLACEMENT 12.7
 
-#define WINDOWBOTTOMMARGIN 96.2
+#define WINDOWBOTTOMMARGIN 77.0
 
-#define ROTATIONANGLE 43.6
+#define ROTATIONANGLE 15.0
 
 #define WINDOWANGLEDDISTANCE (744.2-230)
 
@@ -37,6 +37,6 @@ void startPP();
 void stopPP();
 bool isPP_Running();
 void togglePP();
-void RunMotionPlanning(float End_of_Window_Threshold, UART_HandleTypeDef* huart);
+void RunMotionPlanning(float End_of_Window_Threshold);
 
 #endif /* WW_PP_H_ */

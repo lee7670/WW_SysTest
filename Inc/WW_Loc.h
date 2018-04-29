@@ -17,8 +17,9 @@
 #include "WW_CMD.h"
 #include "tim.h"
 #include "usart.h"
-#define WHEELRAD 34.925
-#define CENTERDIS 222.25
+#define WHEELRAD 33.0
+#define CENTERDIS 228.6
+#define ROTVELFUDGEFACTOR 3.0
 #define KP 0.9
 #define KI 3.3
 #define KD 0.07

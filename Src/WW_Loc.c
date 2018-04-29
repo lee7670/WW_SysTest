@@ -54,8 +54,23 @@ void initMot(TIM_HandleTypeDef* TIM_RightEnc, TIM_HandleTypeDef* TIM_LeftEnc,
 //sets targets for arc move
 void setArc(float R/*mm*/, float w/*degrees/s*/, float phi/*degrees*/){
 	float scalingfactor = 60.0/360.0;//(seconds/minute)/(degrees/revolution)
-	right.setRPM = (w*(R+CENTERDIS))*scalingfactor*(1/WHEELRAD);
-	left.setRPM = (w*(R-CENTERDIS))*scalingfactor*(1/WHEELRAD);
+	float right_rotation_velocity_fudge_factor,left_rotation_velocity_fudge_factor;
+	if (!isPP_Running()){
+		right_rotation_velocity_fudge_factor = 1.0;
+		left_rotation_velocity_fudge_factor = 1.0;
+	}
+	else {
+		if(w > 0){
+			right_rotation_velocity_fudge_factor = 3.0;
+			left_rotation_velocity_fudge_factor = 1.0;
+		}
+		else {
+			right_rotation_velocity_fudge_factor = 1.0;
+			left_rotation_velocity_fudge_factor = 3.0;
+		}
+	}
+	right.setRPM = (w*(R+CENTERDIS))*scalingfactor*(1/WHEELRAD)*right_rotation_velocity_fudge_factor;
+	left.setRPM = (w*(R-CENTERDIS))*scalingfactor*(1/WHEELRAD)*left_rotation_velocity_fudge_factor;
 	//set appropriate values for reverse operation
 	if (right.setRPM < 0){
 		right.setRPM = -1*right.setRPM;
@@ -149,7 +164,7 @@ void Run_PID(UART_HandleTypeDef* huart){
 //		rpm2 = -1*rpm2;
 //	}
 	//check for stop condition
-	if (posPID||(isPP_Running()&&(right.setRPM == 0)&&(left.setRPM == 0))) {
+	if (posPID||(isPP_Running())) {
 		if ((((realspeed1*60.0)/(2.0*M_PI*WHEELRAD))>110)||(((realspeed2*60.0)/(2.0*M_PI*WHEELRAD))>110)){
 			return;
 		}
