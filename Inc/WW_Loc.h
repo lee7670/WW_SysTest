@@ -19,7 +19,6 @@
 #include "usart.h"
 #define WHEELRAD 33.0
 #define CENTERDIS 228.6
-#define ROTVELFUDGEFACTOR 3.0
 #define KP 0.9
 #define KI 3.3
 #define KD 0.07

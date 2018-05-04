@@ -13,6 +13,7 @@ float theta = ROTATIONANGLE;
 double d_y;
 bool running = false;
 int i = 0;
+float x_dis = 0.0;
 void startPP(){
 	running = true;
 	stopPosPID();
@@ -47,10 +48,10 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 	if (GetCurrentSize()+QUEUESIZE>QUEUESIZE){
 	    return;
 	}
-	if (i >= 6){
-		running = false;
-		startPosPID();
-	}
+//	if (i >= 6){
+//		running = false;
+//		startPosPID();
+//	}
 	//double d_x = Get_Ultrasonic_Reading(&x);
 	//get ultrasonic y distance
 //	d_y = 10.0*GetUltrasonicY();
@@ -63,10 +64,17 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 //		enq("l 25.4 -200");
 //	}
 	//if finished wwith one side of window and barrier not crossed, cross barrier
-	if (/*(d_x >= End_of_Window_Threshold) && (!BarrierCrossed)*/ false){
-		enq("b 180");
-		enq("l 991 500");
+	if (/*(x_dis >= End_of_Window_Threshold) && (!BarrierCrossed)*/i==8){
+		char buffer[15];
+		char temp[5];
+		char* out;
+		out = gcvt(Get_PP_LinDis()+76.2,5,temp);
+		sprintf(buffer,"l %s 150\n",out);
+		enq(buffer);
+		enq("l 419.1 500");
 		BarrierCrossed = true;
+		i++;
+		return;
 	}
 	//otherwise
 	else {
@@ -91,7 +99,8 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 			enq(buffer);
 		}
 
-		lin_dis = -1*(lin_dis/(cos(ROTATIONANGLE*(M_PI/180)))) - 190.0;
+		lin_dis = -1*(lin_dis/(cos(ROTATIONANGLE*(M_PI/180)))) - 180.0;
+		x_dis = x_dis + lin_dis*sin(ROTATIONANGLE*(M_PI/180));
 		memset(buffer, 0, 15);
 		out = gcvt(lin_dis,5, temp);
 		sprintf(buffer,"l %s -300\n",out);
@@ -109,9 +118,12 @@ void RunMotionPlanning(float End_of_Window_Threshold){
 			sprintf(buffer,"r -6 %s\n",out);
 			enq(buffer);
 		}
-		i++;
 	}
 	//if finished, return
-	//(BarrierCrossed)/*&&(d_x<=WINDOWBOTTOMMARGIN)*/&&(d_y<=WINDOWBOTTOMMARGIN)
+	if(i>=16) {
+		stopPP();
+		return;
+	}
+	i++;
 }
 
