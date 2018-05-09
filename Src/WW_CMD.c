@@ -60,6 +60,7 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		 */
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, 0);
 		Stop_Motors();
+		stopPP();
 	}else if (strncmp(tkpnt, "r",1)==0){
 		tkpnt = strtok(NULL, " ");
 		float rotomega = atof(tkpnt);
@@ -119,19 +120,13 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		int pwm = atoi(tkpnt);
 		pwm = pwm + 255;
 		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_1, pwm);
-	}else if(strncmp(tkpnt, "b",1)==0){
-		/*
-		 * Servo command
-		 * 0 to 180
-		 */
-		tkpnt = strtok(NULL, " ");
-		int16_t pwm = atoi(tkpnt);
-		//pwm = map(pwm, 0, 180, 255, 512);
-		__HAL_TIM_SetCompare(Fan_TIM, TIM_CHANNEL_2, pwm);
 	}else if(strncmp(tkpnt, "p",1)==0){
 		togglePP();
 	}else if(strncmp(tkpnt, "o",1)==0){
 		togglePosPID();
+	}else if(strncmp(tkpnt, "b",1)==0){
+		//enq("l 1233.4 700");
+		toggleServo();
 	}else if(strncmp(tkpnt, "l",1)==0){
 		/*
 		 * Start Linear Move

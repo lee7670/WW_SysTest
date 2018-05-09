@@ -1,6 +1,6 @@
-main.c:144:6:SystemClock_Config	80	static
-main.c:195:6:setup	56	static
-main.c:84:5:main	16	static
-main.c:237:8:Get_PP_LinDis	8	static
-main.c:240:8:Get_PP_AngledDis	8	static
-main.c:251:6:_Error_Handler	0	static
+main.c:148:6:SystemClock_Config	80	static
+main.c:199:6:setup	56	static
+main.c:84:5:main	8	static
+main.c:241:8:Get_PP_LinDis	8	static
+main.c:244:8:Get_PP_AngledDis	8	static
+main.c:255:6:_Error_Handler	0	static

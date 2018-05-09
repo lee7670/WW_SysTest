@@ -5,22 +5,34 @@
  *      Author: Rishabh K.
  */
 #include <WW_PP.h>
-bool BarrierCrossed = false;
+bool BarrierCrossed;
 int len, lenr;
 char *dis, *rot;
 float lin_dis;
 float theta = ROTATIONANGLE;
 double d_y;
 bool running = false;
+bool BC_CMD;
 int i = 0;
-float x_dis = 0.0;
+float x_dis;
+char buffer[15];
+char temp[5];
+char* out;
+void (*state)();
 void startPP(){
 	running = true;
+	BarrierCrossed = false;
+	BC_CMD = true;
+	x_dis = 0.0;
 	stopPosPID();
+	state = Linear_Move_Down;
 	return;
 }
 void stopPP(){
 	running = false;
+	BarrierCrossed = false;
+	BC_CMD = true;
+	x_dis = 0.0;
 	int n = GetCurrentSize();
 	for (int i=0;i<n;i++){
 		deq();
@@ -29,6 +41,9 @@ void stopPP(){
 }
 bool isPP_Running(){
 	return running;
+}
+bool Barrier_Crossed(){
+	return BarrierCrossed;
 }
 void togglePP(){
 	if (running==false){
@@ -39,91 +54,85 @@ void togglePP(){
 		stopPP();
 	}
 }
-void RunMotionPlanning(float End_of_Window_Threshold){
+void RunMotionPlanning(){
 	//only operate if path planning is running
 	if(!running){
 		return;
 	}
 	//if queue has any items
-	if (GetCurrentSize()+QUEUESIZE>QUEUESIZE){
+	if (isFull()){
 	    return;
 	}
-//	if (i >= 6){
-//		running = false;
-//		startPosPID();
-//	}
-	//double d_x = Get_Ultrasonic_Reading(&x);
-	//get ultrasonic y distance
-//	d_y = 10.0*GetUltrasonicY();
-//	char buffer[25];
-//	uint8_t len=sprintf(buffer,"distance:%i\r\n", (int)(d_y)); //sprintf will return the length of 'buffer'
-//	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
-//	//if closer than 38mm to barrier, stop and back up 1 inch
-//	if (d_y <= BARRIERTHRESHOLD){
-//		Stop_Motors();
-//		enq("l 25.4 -200");
-//	}
-	//if finished wwith one side of window and barrier not crossed, cross barrier
-	if (/*(x_dis >= End_of_Window_Threshold) && (!BarrierCrossed)*/i==8){
-		char buffer[15];
-		char temp[5];
-		char* out;
-		out = gcvt(Get_PP_LinDis()+76.2,5,temp);
-		sprintf(buffer,"l %s 150\n",out);
-		enq(buffer);
-		enq("l 419.1 500");
-		BarrierCrossed = true;
-		i++;
-		return;
-	}
-	//otherwise
-	else {
-		lin_dis = Get_PP_LinDis() - WINDOWBOTTOMMARGIN - UltrasonicYPLACEMENT;
-		char buffer[15];
-		char temp[5];
-		char* out;
-		out = gcvt(lin_dis,5, temp);
-		sprintf(buffer,"l %s 150\n",out);
-		enq(buffer);
-		//if barrier not crossed traverse one way, switch directions once crossed
-		if (!BarrierCrossed){
-			memset(buffer, 0, 15);
-			out = gcvt((theta*(11/9)),5, temp);
-			sprintf(buffer,"r -6 %s\n",out);
-			enq(buffer);
-		}
-		else {
-			memset(buffer, 0, 15);
-			out = gcvt((theta*(11/9)),5, temp);
-			sprintf(buffer,"r 6 %s\n",out);
-			enq(buffer);
-		}
-
-		lin_dis = -1*(lin_dis/(cos(ROTATIONANGLE*(M_PI/180)))) - 180.0;
-		x_dis = x_dis + lin_dis*sin(ROTATIONANGLE*(M_PI/180));
-		memset(buffer, 0, 15);
-		out = gcvt(lin_dis,5, temp);
-		sprintf(buffer,"l %s -300\n",out);
-		enq(buffer);
-
-		if (!BarrierCrossed){
-			memset(buffer, 0, 15);
-			out = gcvt((theta*(11/9)),5, temp);
-			sprintf(buffer,"r 6 %s\n",out);
-			enq(buffer);
-		}
-		else {
-			memset(buffer, 0, 100);
-			out = gcvt((theta*(11/9)),5, temp);
-			sprintf(buffer,"r -6 %s\n",out);
-			enq(buffer);
-		}
-	}
-	//if finished, return
-	if(i>=16) {
-		stopPP();
-		return;
-	}
-	i++;
+	state();
 }
+void Linear_Move_Down(){
+	lin_dis = Get_PP_LinDis() - WINDOWBOTTOMMARGIN - UltrasonicYPLACEMENT;
+	memset(buffer, 0, 15);
+	out = gcvt(lin_dis,5, temp);
+	sprintf(buffer,"l %s 250\n",out);
+	enq(buffer);
+	if (x_dis >= 2*WINDOWLENGTH){
+		stopPP();
+	}
+	else {
+		if (x_dis >= WINDOWLENGTH && !BarrierCrossed) {
+		 state = Barrier_Crossing;
+		}
+		else {
+		 state = Rotation_to_Angle;
+		}
+	}
+}
+void Rotation_to_Angle(){
+	memset(buffer, 0, 15);
+	out = gcvt((theta*(11/9)),5, temp);
+	if (!BarrierCrossed) {
+		sprintf(buffer,"r -12 %s\n",out);
+	}
+	else {
+		sprintf(buffer,"r 12 %s\n",out);
+	}
 
+	enq(buffer);
+	state = Linear_Move_Up_at_Angle;
+}
+void Linear_Move_Up_at_Angle(){
+	memset(buffer, 0, 15);
+	float d = -1*((Get_PP_LinDis() - WINDOWBOTTOMMARGIN - UltrasonicYPLACEMENT)/(cos(ROTATIONANGLE*(M_PI/180)))) - 130.0;
+	x_dis = x_dis - d*sin(ROTATIONANGLE*(M_PI/180));
+	out = gcvt(d,5, temp);
+	sprintf(buffer,"l %s -400\n",out);
+	enq(buffer);
+	state = Rotation_to_Straight;
+}
+void Rotation_to_Straight(){
+	memset(buffer, 0, 15);
+	out = gcvt((theta*(11/9)),5, temp);
+	if (!BarrierCrossed) {
+		sprintf(buffer,"r 12 %s\n",out);
+	}
+	else {
+		sprintf(buffer,"r -12 %s\n",out);
+	}
+
+	enq(buffer);
+	state = Linear_Move_Down;
+}
+void Barrier_Crossing(){
+	memset(buffer, 0, 15);
+	if (BC_CMD) {
+		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,540);
+		out = gcvt(Get_PP_LinDis()+76.2+419.1,5,temp);
+		sprintf(buffer,"l %s 500\n",out);
+		enq(buffer);
+		BC_CMD = false;
+		state = Barrier_Crossing;
+	}
+	else {
+		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,60);
+		HAL_Delay(500);
+		BC_CMD = true;
+		BarrierCrossed = true;
+		state = Linear_Move_Down;
+	}
+}

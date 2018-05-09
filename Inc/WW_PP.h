@@ -24,19 +24,25 @@
 
 #define UltrasonicYPLACEMENT 12.7
 
-#define WINDOWBOTTOMMARGIN 77.0
+#define WINDOWBOTTOMMARGIN 57.0
 
 #define ROTATIONANGLE 15.0
 
 #define WINDOWANGLEDDISTANCE (744.2-230)
 
-#define WINDOWLENGTH 1473.2
+#define WINDOWLENGTH 1437.2-558.8
 
 #define BARRIERTHRESHOLD 150
 void startPP();
 void stopPP();
 bool isPP_Running();
+bool Barrier_Crossed();
 void togglePP();
-void RunMotionPlanning(float End_of_Window_Threshold);
+void RunMotionPlanning();
+void Linear_Move_Down();
+void Rotation_to_Angle();
+void Linear_Move_Up_at_Angle();
+void Rotation_to_Straight();
+void Barrier_Crossing();
 
 #endif /* WW_PP_H_ */

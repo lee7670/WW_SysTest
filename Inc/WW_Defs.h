@@ -16,7 +16,7 @@
 #    define M_PI 3.14159265358979323846
 #endif
 #define SYSCLK 32000000.0F
-#define QUEUESIZE 5
+#define QUEUESIZE 1
 struct cmdqueue{
 	uint8_t front;
 	uint8_t back;

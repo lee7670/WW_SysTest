@@ -9,6 +9,7 @@
 struct motor left;
 struct motor right;
 bool posPID = false;
+bool servoUp = false;
 void togglePosPID(){
 	posPID = !posPID;
 	return;
@@ -19,6 +20,16 @@ void startPosPID(){
 }
 void stopPosPID(){
 	posPID = false;
+	return;
+}
+void toggleServo(){
+	servoUp = !servoUp;
+	if (servoUp){
+		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,540);
+	}
+	else {
+		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,60);
+	}
 	return;
 }
 //initiate right and left motor data structures. Also initializes PID controllers.
@@ -60,14 +71,27 @@ void setArc(float R/*mm*/, float w/*degrees/s*/, float phi/*degrees*/){
 		left_rotation_velocity_fudge_factor = 1.0;
 	}
 	else {
-		if(w > 0){
-			right_rotation_velocity_fudge_factor = 3.0;
-			left_rotation_velocity_fudge_factor = 1.0;
+		if(!Barrier_Crossed()) {
+			if(w > 0){
+						right_rotation_velocity_fudge_factor = 0.5;
+						left_rotation_velocity_fudge_factor = 1.0;
+			}
+			else {
+						right_rotation_velocity_fudge_factor = 1.0;
+						left_rotation_velocity_fudge_factor = 1.0;
+			}
 		}
 		else {
-			right_rotation_velocity_fudge_factor = 1.0;
-			left_rotation_velocity_fudge_factor = 3.0;
+			if(w > 0){
+						right_rotation_velocity_fudge_factor = 1.0;
+						left_rotation_velocity_fudge_factor = 1.0;
+			}
+			else {
+						right_rotation_velocity_fudge_factor = 1.0;
+						left_rotation_velocity_fudge_factor = 0.5;
+			}
 		}
+
 	}
 	right.setRPM = (w*(R+CENTERDIS))*scalingfactor*(1/WHEELRAD)*right_rotation_velocity_fudge_factor;
 	left.setRPM = (w*(R-CENTERDIS))*scalingfactor*(1/WHEELRAD)*left_rotation_velocity_fudge_factor;
@@ -165,7 +189,7 @@ void Run_PID(UART_HandleTypeDef* huart){
 //	}
 	//check for stop condition
 	if (posPID||(isPP_Running())) {
-		if ((((realspeed1*60.0)/(2.0*M_PI*WHEELRAD))>110)||(((realspeed2*60.0)/(2.0*M_PI*WHEELRAD))>110)){
+		if ((((realspeed1*60.0)/(2.0*M_PI*WHEELRAD))>115)||(((realspeed2*60.0)/(2.0*M_PI*WHEELRAD))>115)){
 			return;
 		}
 		if (getEncB_Right_Val()== false){

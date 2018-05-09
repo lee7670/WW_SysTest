@@ -115,17 +115,21 @@ int main(void)
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   setup();
-  float End_of_Window_Threshold = WINDOWLENGTH;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  //__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2, (int16_t)60);
   while (1)
   {
+//	  __HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2, (int16_t)60);
+//	  HAL_Delay(3000);
+//	  __HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2, (int16_t)540);
+//	  HAL_Delay(3000);
 	  //Parse Recieved Serial Commands
 	  Parse_CMD(&htim9, &huart1);
 	  //Run Motion Planning Algorithm
-	  RunMotionPlanning(End_of_Window_Threshold);
+	  RunMotionPlanning();
 	  //Run PID Control to adjust motor PWM to hit targets
 	  Run_PID(&huart1);
   /* USER CODE END WHILE */
@@ -231,7 +235,7 @@ void setup(){
 	char buffer[25];
 	uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
 	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
-	startPosPID();
+	//startPosPID();
 	return;
 }
 double Get_PP_LinDis(){
