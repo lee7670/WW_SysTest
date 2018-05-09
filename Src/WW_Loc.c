@@ -25,10 +25,10 @@ void stopPosPID(){
 void toggleServo(){
 	servoUp = !servoUp;
 	if (servoUp){
-		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,540);
+		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,60);
 	}
 	else {
-		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,60);
+		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,540);
 	}
 	return;
 }
@@ -221,7 +221,12 @@ void Run_PID(UART_HandleTypeDef* huart){
 		left.distance_traveled = 0.0;
 		Set_MotorDir();
 		if(!isEmpty()){
-			EXE_CMD(deq(), &htim9, &huart1);
+			//char buffer[100];
+			char* buffer = deq();
+			EXE_CMD(buffer, &htim9, &huart1);
+
+			//uint8_t len = sprintf(buffer,"Deq :%x\r\n", id); //sprintf will return the length of 'buffer'
+			HAL_UART_Transmit(huart, (unsigned char*)buffer, 30, 1000);
 		}
 		Get_EncoderPos(&right);
 		Get_EncoderPos(&left);

@@ -235,6 +235,7 @@ void setup(){
 	char buffer[25];
 	uint8_t len=sprintf(buffer,"Init\r\n"); //sprintf will return the length of 'buffer'
 	HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
+	__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,540);
 	//startPosPID();
 	return;
 }

@@ -24,15 +24,12 @@
 
 #define UltrasonicYPLACEMENT 12.7
 
-#define WINDOWBOTTOMMARGIN 57.0
+#define WINDOWBOTTOMMARGIN 77.0
 
-#define ROTATIONANGLE 15.0
+#define ROTATIONANGLE 20.0
 
-#define WINDOWANGLEDDISTANCE (744.2-230)
+#define WINDOWLENGTH 965.2
 
-#define WINDOWLENGTH 1437.2-558.8
-
-#define BARRIERTHRESHOLD 150
 void startPP();
 void stopPP();
 bool isPP_Running();

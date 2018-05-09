@@ -43,6 +43,7 @@ struct motor{
 void togglePosPID();
 void startPosPID();
 void stopPosPID();
+void toggleServo();
 void setLin(float dis, float spd);
 void setArc(float r, float w, float phi);
 void initMot(TIM_HandleTypeDef* TIM_RightEnc, TIM_HandleTypeDef* TIM_LeftEnc,

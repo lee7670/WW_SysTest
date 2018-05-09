@@ -68,18 +68,22 @@ void RunMotionPlanning(){
 void Linear_Move_Down(){
 	lin_dis = Get_PP_LinDis() - WINDOWBOTTOMMARGIN - UltrasonicYPLACEMENT;
 	memset(buffer, 0, 15);
-	out = gcvt(lin_dis,5, temp);
-	sprintf(buffer,"l %s 250\n",out);
-	enq(buffer);
 	if (x_dis >= 2*WINDOWLENGTH){
 		stopPP();
 	}
 	else {
 		if (x_dis >= WINDOWLENGTH && !BarrierCrossed) {
-		 state = Barrier_Crossing;
+		  out = gcvt((Get_PP_LinDis()+76.2+457.2),5, temp);
+		  sprintf(buffer,"l %s 400\n",out);
+		  enq(buffer);
+		  __HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,60);
+		  state = Barrier_Crossing;
 		}
 		else {
-		 state = Rotation_to_Angle;
+		  out = gcvt(lin_dis,5, temp);
+		  sprintf(buffer,"l %s 250\n",out);
+		  enq(buffer);
+		  state = Rotation_to_Angle;
 		}
 	}
 }
@@ -107,7 +111,7 @@ void Linear_Move_Up_at_Angle(){
 }
 void Rotation_to_Straight(){
 	memset(buffer, 0, 15);
-	out = gcvt((theta*(11/9)),5, temp);
+	out = gcvt(theta,5, temp);
 	if (!BarrierCrossed) {
 		sprintf(buffer,"r 12 %s\n",out);
 	}
@@ -121,16 +125,15 @@ void Rotation_to_Straight(){
 void Barrier_Crossing(){
 	memset(buffer, 0, 15);
 	if (BC_CMD) {
-		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,540);
-		out = gcvt(Get_PP_LinDis()+76.2+419.1,5,temp);
-		sprintf(buffer,"l %s 500\n",out);
+		out = gcvt(25.4,5, temp);
+		sprintf(buffer,"l %s 250\n",out);
 		enq(buffer);
 		BC_CMD = false;
 		state = Barrier_Crossing;
 	}
 	else {
-		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,60);
-		HAL_Delay(500);
+		__HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,540);
+		HAL_Delay(1000);
 		BC_CMD = true;
 		BarrierCrossed = true;
 		state = Linear_Move_Down;
