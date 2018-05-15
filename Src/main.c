@@ -226,8 +226,8 @@ void setup(){
 	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_3);
 	HAL_TIM_IC_Start_IT(&htim5,TIM_CHANNEL_4);
 	HAL_Delay(10);
-	d_y = GetUltrasonicY();
-	a_y = d_y/(cos(ROTATIONANGLE*(M_PI/180)));
+//	d_y = GetUltrasonicY();
+//	a_y = d_y/(cos(ROTATIONANGLE*(M_PI/180)));
 	//start UART receive interrupt
 	UART_ReadStart(&huart1);
 
@@ -241,6 +241,10 @@ void setup(){
 }
 double Get_PP_LinDis(){
 	return 10.0*d_y;
+}
+double Read_Ultrasonic_Y(){
+	d_y = GetUltrasonicY();
+	return d_y;
 }
 double Get_PP_AngledDis(){
 	return 10.0*a_y;

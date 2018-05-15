@@ -73,7 +73,7 @@ void Linear_Move_Down(){
 	}
 	else {
 		if (x_dis >= WINDOWLENGTH && !BarrierCrossed) {
-		  out = gcvt((Get_PP_LinDis()+76.2+457.2),5, temp);
+		  out = gcvt((Get_PP_LinDis()+76.2+330.2),5, temp);
 		  sprintf(buffer,"l %s 400\n",out);
 		  enq(buffer);
 		  __HAL_TIM_SetCompare(&htim9, TIM_CHANNEL_2,60);
@@ -111,7 +111,7 @@ void Linear_Move_Up_at_Angle(){
 }
 void Rotation_to_Straight(){
 	memset(buffer, 0, 15);
-	out = gcvt(theta,5, temp);
+	out = gcvt((theta*(11/9)),5, temp);
 	if (!BarrierCrossed) {
 		sprintf(buffer,"r 12 %s\n",out);
 	}

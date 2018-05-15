@@ -222,11 +222,11 @@ void Run_PID(UART_HandleTypeDef* huart){
 		Set_MotorDir();
 		if(!isEmpty()){
 			//char buffer[100];
-			char* buffer = deq();
-			EXE_CMD(buffer, &htim9, &huart1);
+			//char* buffer = deq();
+			EXE_CMD(deq(), &htim9, &huart1);
 
 			//uint8_t len = sprintf(buffer,"Deq :%x\r\n", id); //sprintf will return the length of 'buffer'
-			HAL_UART_Transmit(huart, (unsigned char*)buffer, 30, 1000);
+			//HAL_UART_Transmit(huart, (unsigned char*)buffer, 30, 1000);
 		}
 		Get_EncoderPos(&right);
 		Get_EncoderPos(&left);

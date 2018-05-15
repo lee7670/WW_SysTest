@@ -205,13 +205,11 @@ void EXE_CMD(char*command, TIM_HandleTypeDef* Fan_TIM, UART_HandleTypeDef* huart
 		HAL_UART_Transmit(huart, (unsigned char*)buffer, len, 1000);
 	#endif
 	}else if(strncmp(tkpnt, "u",1)==0){
-		double d_y = Get_PP_LinDis();
+		double d_y = Read_Ultrasonic_Y();
+		d_y = Get_PP_LinDis();
 		HAL_Delay(100);
-		double d_x = Get_PP_AngledDis();
 		char buffer[25];
 		uint8_t len=sprintf(buffer,"disy:%i\r\n", (int)(d_y)); //sprintf will return the length of 'buffer'
-		HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
-		len=sprintf(buffer,"disx:%i\r\n", (int)(d_x)); //sprintf will return the length of 'buffer'
 		HAL_UART_Transmit(&huart1, (unsigned char*)buffer, len, 1000);
 	}else{
 		char buffer[25];
